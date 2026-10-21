@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Estado de P05.
- * @param resumenes una fila por ubicación con stock (las 12), con sus alertas abiertas.
+ * @param resumenes solo las ubicaciones con alertas abiertas, de más a menos alertas.
  */
 data class EstadoInicioGerente(
     val cargando: Boolean = true,
@@ -73,6 +73,8 @@ class InicioGerenteViewModel(
                         alertasAbiertas = tablero.totalAlertasAbiertas,
                         movimientosHoy = movimientosHoy.size,
                         resumenes = tablero.resumenes
+                            .filter { r -> r.alertasAbiertas > 0 }
+                            .sortedByDescending { r -> r.alertasAbiertas }
                     )
                 }
             } catch (e: SinConexionException) {

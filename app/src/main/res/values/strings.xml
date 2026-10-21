@@ -7,12 +7,12 @@
     <string name="estado_critico">Crítico</string>
     <string name="estado_sin_stock">Sin stock</string>
 
-    <!-- Títulos de las 16 pantallas -->
+    <!-- Títulos de las 16 pantallas (los de P03 a P05 siguen los mockups) -->
     <string name="titulo_p01">Login</string>
     <string name="titulo_p02">Selección de ubicación</string>
-    <string name="titulo_p03">Inicio Operador</string>
-    <string name="titulo_p04">Inicio Encargado</string>
-    <string name="titulo_p05">Inicio Gerente</string>
+    <string name="titulo_p03">Inicio</string>
+    <string name="titulo_p04">Inicio</string>
+    <string name="titulo_p05">Gerencia</string>
     <string name="titulo_p06">Inventario</string>
     <string name="titulo_p07">Detalle de producto</string>
     <string name="titulo_p08">Buscar por código</string>
@@ -33,39 +33,49 @@
     <string name="seccion_inventario">Inventario</string>
     <string name="seccion_alertas">Alertas</string>
     <string name="seccion_historial">Historial</string>
+    <string name="subtitulo_todas_ubicaciones">Todas las ubicaciones</string>
 
     <string name="en_construccion">En construcción</string>
     <string name="cargando">Cargando…</string>
 
-    <!-- Perfiles y tipos de ubicación -->
+    <!-- Perfiles, tipos de ubicación y tipos de movimiento -->
     <string name="perfil_operador">Operador</string>
     <string name="perfil_encargado_bodega">Encargado de bodega</string>
     <string name="perfil_gerente">Gerencial</string>
     <string name="tipo_tienda">Tienda</string>
     <string name="tipo_bodega">Bodega</string>
     <string name="tipo_administrativa">Administrativa</string>
+    <string name="movimiento_entrada">Entrada</string>
+    <string name="movimiento_salida">Salida</string>
+    <string name="movimiento_ajuste">Ajuste</string>
+    <string name="movimiento_conteo">Conteo</string>
 
     <!-- P01 Login -->
-    <string name="login_instruccion">Elige un usuario de prueba para ingresar.</string>
+    <string name="login_subtitulo">Inventario multitienda</string>
+    <string name="login_titulo">Elige tu usuario</string>
+    <string name="login_ayuda">Usuarios de demostración, datos ficticios</string>
     <string name="login_id_perfil">%1$s · %2$s</string>
     <string name="login_ingresar">Ingresar</string>
     <string name="demo_sin_conexion_activa">Modo demo: conexión simulada cortada. Mantén presionado el título para restablecerla.</string>
 
     <!-- P02 Selección de ubicación -->
-    <string name="seleccion_usuario">%1$s (%2$s)</string>
-    <string name="seleccion_instruccion">Elige la ubicación donde vas a trabajar.</string>
+    <string name="seleccion_titulo_tienda">Selecciona tu tienda</string>
+    <string name="seleccion_titulo_ubicacion">Selecciona tu ubicación</string>
+    <string name="seleccion_subtitulo">%1$s · %2$s</string>
+    <string name="seleccion_ayuda">Solo se muestran las ubicaciones asignadas a tu usuario.</string>
     <string name="seleccion_solo_consulta">Solo consulta</string>
+    <string name="seleccion_activa">Activa</string>
     <string name="seleccion_inactiva">Inactiva</string>
     <string name="seleccion_sin_ubicaciones">No tienes ubicaciones disponibles.</string>
     <string name="error_carga">No se pudieron cargar los datos.</string>
 
     <!-- P16 Sin conexión -->
-    <string name="sin_conexion_mensaje">No pudimos comunicarnos con el servidor. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="sin_conexion_mensaje">BYTO necesita conexión a internet para mostrar datos actualizados.</string>
     <string name="sin_conexion_reintentar">Reintentar</string>
 
     <!-- Inicios (P03, P04, P05) -->
     <string name="inicio_saludo">Hola, %1$s</string>
-    <string name="inicio_accesos">Accesos rápidos</string>
+    <string name="inicio_accesos">Accesos</string>
     <string name="acceso_buscar_codigo">Buscar por código</string>
     <string name="acceso_inventario">Inventario</string>
     <string name="acceso_registrar_movimiento">Registrar movimiento</string>
@@ -76,14 +86,13 @@
     <string name="acceso_exportar_reporte">Exportar reporte</string>
 
     <!-- P03 Inicio Operador -->
-    <string name="operador_estado_stock">Productos con stock bajo en esta ubicación</string>
+    <string name="operador_estado_stock">Estado del stock en esta tienda</string>
     <plurals name="operador_reposiciones_titulo">
-        <item quantity="one">Hay %1$d reposición abierta</item>
-        <item quantity="many">Hay %1$d reposiciones abiertas</item>
-        <item quantity="other">Hay %1$d reposiciones abiertas</item>
+        <item quantity="one">Reposición pendiente</item>
+        <item quantity="many">Reposiciones pendientes</item>
+        <item quantity="other">Reposiciones pendientes</item>
     </plurals>
-    <string name="operador_reposiciones_ayuda">Registra la entrada cuando llegue el producto.</string>
-    <string name="operador_reposicion_producto">• %1$s · %2$s</string>
+    <string name="operador_reposicion_producto">%1$s (%2$s) · declarada por %3$s</string>
 
     <!-- P04 Inicio Encargado -->
     <string name="encargado_alertas_abiertas">Alertas abiertas</string>
@@ -93,13 +102,53 @@
 
     <!-- P05 Inicio Gerente -->
     <string name="gerente_ubicaciones_activas">Ubicaciones activas</string>
-    <string name="gerente_activas_valor">%1$d de %2$d</string>
+    <string name="gerente_de_total">de %1$d</string>
     <string name="gerente_alertas_abiertas">Alertas abiertas</string>
-    <string name="gerente_movimientos_hoy">Movimientos de hoy</string>
+    <string name="gerente_movimientos_hoy">Movimientos hoy</string>
     <string name="gerente_alertas_por_ubicacion">Alertas abiertas por ubicación</string>
+    <string name="gerente_sin_alertas">No hay alertas abiertas.</string>
     <plurals name="gerente_alertas_cantidad">
         <item quantity="one">%1$d alerta</item>
         <item quantity="many">%1$d alertas</item>
         <item quantity="other">%1$d alertas</item>
     </plurals>
+
+    <!-- P06 Inventario -->
+    <string name="inventario_buscar">Buscar por nombre o código</string>
+    <string name="inventario_borrar_busqueda">Borrar búsqueda</string>
+    <string name="inventario_filtro_todos">Todos</string>
+    <string name="inventario_mostrando">Mostrando %1$d de %2$d productos</string>
+    <string name="inventario_codigo_unidades">%1$s · %2$d u</string>
+    <string name="inventario_sin_resultados">No hay productos que coincidan con la búsqueda o el filtro.</string>
+    <string name="inventario_limpiar">Limpiar búsqueda y filtro</string>
+
+    <!-- P07 Detalle de producto -->
+    <string name="detalle_subtitulo">Detalle del producto</string>
+    <string name="detalle_stock_actual">Stock actual</string>
+    <string name="detalle_unidades">unidades</string>
+    <string name="detalle_umbrales">Stock mínimo: %1$d · Crítico bajo %2$d</string>
+    <string name="detalle_codigo_interno">Código interno</string>
+    <string name="detalle_ean">EAN-13</string>
+    <string name="detalle_categoria">Categoría</string>
+    <string name="detalle_ubicacion">Ubicación</string>
+    <string name="detalle_ultimos_movimientos">Últimos movimientos</string>
+    <string name="detalle_sin_movimientos">Aún no hay movimientos de este producto en esta ubicación.</string>
+    <string name="detalle_movimiento_titulo">%1$s %2$s</string>
+    <string name="detalle_conteo_cambio">%1$d → %2$d</string>
+    <string name="detalle_registrar">Registrar movimiento</string>
+    <string name="detalle_solo_consulta">Solo consulta: con tu perfil puedes ver este producto, pero no registrar movimientos aquí.</string>
+    <string name="detalle_no_encontrado">Este producto no existe en la ubicación activa.</string>
+
+    <!-- P08 Buscar por código -->
+    <string name="buscar_etiqueta">Código de barras (EAN-13)</string>
+    <string name="buscar_ayuda">13 dígitos. La lectura con cámara estará disponible en la entrega final.</string>
+    <string name="buscar_error_largo">El código debe tener 13 dígitos (tiene %1$d).</string>
+    <string name="buscar_error_numerico">El código solo puede tener números.</string>
+    <string name="buscar_error_verificador">Dígito verificador inválido. Revisa que el código esté bien escrito.</string>
+    <string name="buscar_boton">Buscar</string>
+    <string name="buscar_resultado">Resultado</string>
+    <string name="buscar_resultado_detalle">%1$s · %2$d u · %3$s</string>
+    <string name="buscar_no_encontrado">Producto no encontrado en esta ubicación</string>
+    <string name="buscar_ver_detalle">Ver detalle</string>
+    <string name="buscar_registrar">Registrar</string>
 </resources>

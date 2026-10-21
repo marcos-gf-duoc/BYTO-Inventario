@@ -15,17 +15,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.byto.inventario.R
 
 /**
- * Barra superior común: título de la pantalla, ubicación activa debajo y dos acciones.
+ * Barra superior común: título de la pantalla, un subtítulo debajo y dos acciones.
  * Los IconButton de Material miden 48 dp, el mínimo táctil exigido.
  *
- * @param ubicacionActiva texto ya armado (por ejemplo "T-ST-1 · BYTO Santiago Centro"); null = no se muestra.
+ * @param subtitulo segunda línea: la ubicación activa ("T-ST-1 · BYTO Santiago Centro") u otro
+ * texto propio de la pantalla; null = no se muestra.
  * @param alVolver si no es null, aparece la flecha "Volver" a la izquierda.
  */
 @OptIn(ExperimentalMaterial3Api::class) // TopAppBar aún se marca como experimental en Material 3.
 @Composable
 fun BarraSuperior(
     titulo: String,
-    ubicacionActiva: String?,
+    subtitulo: String?,
     alCambiarUbicacion: () -> Unit,
     alCerrarSesion: () -> Unit,
     alVolver: (() -> Unit)? = null
@@ -34,9 +35,9 @@ fun BarraSuperior(
         title = {
             Column {
                 Text(text = titulo, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (ubicacionActiva != null) {
+                if (subtitulo != null) {
                     Text(
-                        text = ubicacionActiva,
+                        text = subtitulo,
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis

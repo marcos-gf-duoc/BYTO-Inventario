@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Mockups: solo referencia local, no se suben
+docs/mockups/

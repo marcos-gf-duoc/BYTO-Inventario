@@ -8,24 +8,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.byto.inventario.R
 import com.byto.inventario.di.FabricaViewModels
 import com.byto.inventario.ui.components.BarraInferior
 import com.byto.inventario.ui.components.BarraSuperior
 import com.byto.inventario.ui.components.SeccionInferior
+import com.byto.inventario.ui.screens.buscar.PantallaBuscarCodigo
+import com.byto.inventario.ui.screens.detalle.PantallaDetalleProducto
 import com.byto.inventario.ui.screens.enconstruccion.PantallaEnConstruccion
 import com.byto.inventario.ui.screens.inicio.PantallaInicioEncargado
 import com.byto.inventario.ui.screens.inicio.PantallaInicioGerente
 import com.byto.inventario.ui.screens.inicio.PantallaInicioOperador
+import com.byto.inventario.ui.screens.inventario.PantallaInventario
 import com.byto.inventario.ui.screens.login.PantallaLogin
 import com.byto.inventario.ui.screens.seleccion.PantallaSeleccionUbicacion
 import com.byto.inventario.ui.screens.sinconexion.PantallaSinConexion
@@ -49,6 +58,10 @@ fun BytoNavegacion(
     // null = la pantalla actual no lleva barras (login, selección, sin conexión).
     val pantallaConBarras = pantallaActual?.takeIf { it !in Pantalla.sinBarras }
 
+    // Título que una pantalla define en tiempo de ejecución (P07 usa el nombre del producto).
+    // Se guarda junto al id de su entrada en la pila, para no mostrarlo en otra pantalla.
+    var tituloDinamico by remember { mutableStateOf<Pair<String, String>?>(null) }
+
     // Íconos de la barra de estado (hora, batería): blancos sobre la barra morada,
     // oscuros sobre el fondo claro de login, selección y sin conexión.
     // SideEffect aplica el cambio después de cada redibujo; no es parte del dibujo de Compose.
@@ -65,7 +78,7 @@ fun BytoNavegacion(
     // barra inferior; el resto se apila encima del inicio (y muestra la flecha "Volver").
     val abrir: (Pantalla) -> Unit = { destino ->
         if (destino in Pantalla.raices) {
-            navegarComoSeccion(navController, destino, inicio)
+            navegarComoSeccion(navController, destino.ruta, inicio)
         } else {
             navController.navigate(destino.ruta)
         }
@@ -78,8 +91,14 @@ fun BytoNavegacion(
         topBar = {
             if (pantallaConBarras != null) {
                 BarraSuperior(
-                    titulo = stringResource(pantallaConBarras.titulo),
-                    ubicacionActiva = ubicacion?.let { "${it.id} · ${it.nombre}" },
+                    titulo = tituloDinamico?.takeIf { it.first == entradaActual?.id }?.second
+                        ?: stringResource(pantallaConBarras.titulo),
+                    // Subtítulo según la pantalla, como en los mockups.
+                    subtitulo = when (pantallaConBarras) {
+                        Pantalla.INICIO_GERENTE -> stringResource(R.string.subtitulo_todas_ubicaciones)
+                        Pantalla.DETALLE_PRODUCTO -> stringResource(R.string.detalle_subtitulo)
+                        else -> ubicacion?.let { "${it.id} · ${it.nombre}" }
+                    },
                     alCambiarUbicacion = { navController.navigate(Pantalla.SELECCION_UBICACION.ruta) },
                     alCerrarSesion = {
                         sesionViewModel.cerrarSesion()
@@ -115,18 +134,62 @@ fun BytoNavegacion(
                 PantallaSeleccionUbicacion(
                     // Al entrar al inicio se borra la pila: "atrás" no vuelve al login ni a la selección.
                     alElegir = { perfil -> navController.navegarLimpiandoPila(Pantalla.inicioDe(perfil)) },
+                    alVolver = { navController.navigateUp() },
                     alSinConexion = irASinConexion,
                     alSinSesion = irALogin
                 )
             }
             composable(Pantalla.INICIO_OPERADOR.ruta) {
-                PantallaInicioOperador(alAbrir = abrir, alSinConexion = irASinConexion, alSinSesion = irALogin)
+                PantallaInicioOperador(
+                    alAbrir = abrir,
+                    alVerInventario = { estadoStock ->
+                        navegarComoSeccion(navController, Pantalla.rutaInventario(estadoStock), inicio)
+                    },
+                    alSinConexion = irASinConexion,
+                    alSinSesion = irALogin
+                )
             }
             composable(Pantalla.INICIO_ENCARGADO.ruta) {
                 PantallaInicioEncargado(alAbrir = abrir, alSinConexion = irASinConexion, alSinSesion = irALogin)
             }
             composable(Pantalla.INICIO_GERENTE.ruta) {
                 PantallaInicioGerente(alAbrir = abrir, alSinConexion = irASinConexion, alSinSesion = irALogin)
+            }
+            composable(
+                route = Pantalla.INVENTARIO.patron,
+                // El filtro es opcional: puede no venir (null).
+                arguments = listOf(
+                    navArgument(Pantalla.ARG_ESTADO) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) {
+                PantallaInventario(
+                    alAbrirDetalle = { codigo -> navController.navigate(Pantalla.rutaDetalle(codigo)) },
+                    alSinConexion = irASinConexion,
+                    alSinSesion = irALogin
+                )
+            }
+            composable(
+                route = Pantalla.DETALLE_PRODUCTO.patron,
+                arguments = listOf(navArgument(Pantalla.ARG_CODIGO_INTERNO) { type = NavType.StringType })
+            ) { entrada ->
+                PantallaDetalleProducto(
+                    alConocerNombre = { nombre -> tituloDinamico = entrada.id to nombre },
+                    alRegistrar = { codigo -> navController.navigate(Pantalla.rutaRegistrar(codigo)) },
+                    alSinConexion = irASinConexion,
+                    alSinSesion = irALogin
+                )
+            }
+            composable(Pantalla.BUSCAR_CODIGO.ruta) {
+                PantallaBuscarCodigo(
+                    alVerDetalle = { codigo -> navController.navigate(Pantalla.rutaDetalle(codigo)) },
+                    alRegistrar = { codigo -> navController.navigate(Pantalla.rutaRegistrar(codigo)) },
+                    alSinConexion = irASinConexion,
+                    alSinSesion = irALogin
+                )
             }
             composable(Pantalla.SIN_CONEXION.ruta) {
                 // popBackStack vuelve a la pantalla que falló, y esta repite su carga.
@@ -137,7 +200,7 @@ fun BytoNavegacion(
             Pantalla.entries
                 .filter { it !in implementadas }
                 .forEach { pantalla ->
-                    composable(pantalla.ruta) { PantallaEnConstruccion(pantalla) }
+                    composable(pantalla.patron) { PantallaEnConstruccion(pantalla) }
                 }
         }
     }
@@ -150,7 +213,10 @@ private val implementadas = setOf(
     Pantalla.SIN_CONEXION,
     Pantalla.INICIO_OPERADOR,
     Pantalla.INICIO_ENCARGADO,
-    Pantalla.INICIO_GERENTE
+    Pantalla.INICIO_GERENTE,
+    Pantalla.INVENTARIO,
+    Pantalla.DETALLE_PRODUCTO,
+    Pantalla.BUSCAR_CODIGO
 )
 
 /** Navega a [pantalla] borrando toda la pila, para que "atrás" no regrese a lo anterior. */
@@ -163,7 +229,8 @@ private fun NavHostController.navegarLimpiandoPila(pantalla: Pantalla) {
 /** Qué ítem de la barra inferior se resalta en cada pantalla. */
 private fun seccionDe(pantalla: Pantalla?): SeccionInferior? = when (pantalla) {
     Pantalla.INICIO_OPERADOR, Pantalla.INICIO_ENCARGADO, Pantalla.INICIO_GERENTE -> SeccionInferior.INICIO
-    Pantalla.INVENTARIO -> SeccionInferior.INVENTARIO
+    // Detalle y búsqueda trabajan sobre el inventario, así que mantienen esa sección resaltada.
+    Pantalla.INVENTARIO, Pantalla.DETALLE_PRODUCTO, Pantalla.BUSCAR_CODIGO -> SeccionInferior.INVENTARIO
     Pantalla.ALERTAS -> SeccionInferior.ALERTAS
     Pantalla.HISTORIAL -> SeccionInferior.HISTORIAL
     else -> null
@@ -183,12 +250,12 @@ private fun irASeccion(navController: NavHostController, seccion: SeccionInferio
         SeccionInferior.ALERTAS -> Pantalla.ALERTAS
         SeccionInferior.HISTORIAL -> Pantalla.HISTORIAL
     }
-    navegarComoSeccion(navController, destino, inicio)
+    navegarComoSeccion(navController, destino.ruta, inicio)
 }
 
 /** Navega a una pantalla raíz con las reglas de la barra inferior (ver [irASeccion]). */
-private fun navegarComoSeccion(navController: NavHostController, destino: Pantalla, inicio: Pantalla) {
-    navController.navigate(destino.ruta) {
+private fun navegarComoSeccion(navController: NavHostController, ruta: String, inicio: Pantalla) {
+    navController.navigate(ruta) {
         popUpTo(inicio.ruta)
         launchSingleTop = true
     }

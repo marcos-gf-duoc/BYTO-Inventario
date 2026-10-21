@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,19 +35,24 @@ import com.byto.inventario.data.model.EstadoStock
 import com.byto.inventario.data.model.Producto
 import com.byto.inventario.di.FabricaViewModels
 import com.byto.inventario.ui.components.Acceso
-import com.byto.inventario.ui.components.ChipEstadoStock
 import com.byto.inventario.ui.components.CuadriculaAccesos
 import com.byto.inventario.ui.components.IndicadorCarga
 import com.byto.inventario.ui.components.TarjetaResumen
+import com.byto.inventario.ui.components.coloresDe
+import com.byto.inventario.ui.components.textoRes
 import com.byto.inventario.ui.navigation.Pantalla
 import com.byto.inventario.ui.theme.BYTOTheme
 import com.byto.inventario.ui.theme.EstadoBajoFondo
 import com.byto.inventario.ui.theme.EstadoBajoTexto
 
-/** P03 Inicio Operador. [alAbrir] navega a la pantalla indicada. */
+/**
+ * P03 Inicio Operador. [alAbrir] navega a la pantalla indicada;
+ * [alVerInventario] abre P06 con un filtro de estado ya aplicado.
+ */
 @Composable
 fun PantallaInicioOperador(
     alAbrir: (Pantalla) -> Unit,
+    alVerInventario: (EstadoStock) -> Unit,
     alSinConexion: () -> Unit,
     alSinSesion: () -> Unit,
     viewModel: InicioOperadorViewModel = viewModel(factory = FabricaViewModels.Factory)
@@ -64,11 +70,15 @@ fun PantallaInicioOperador(
         if (estado.sinSesion) alSinSesion()
     }
 
-    ContenidoInicioOperador(estado = estado, alAbrir = alAbrir)
+    ContenidoInicioOperador(estado = estado, alAbrir = alAbrir, alVerInventario = alVerInventario)
 }
 
 @Composable
-private fun ContenidoInicioOperador(estado: EstadoInicioOperador, alAbrir: (Pantalla) -> Unit) {
+private fun ContenidoInicioOperador(
+    estado: EstadoInicioOperador,
+    alAbrir: (Pantalla) -> Unit,
+    alVerInventario: (EstadoStock) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,7 +88,8 @@ private fun ContenidoInicioOperador(estado: EstadoInicioOperador, alAbrir: (Pant
     ) {
         Text(
             text = stringResource(R.string.inicio_saludo, estado.operadorId),
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
         )
 
         when {
@@ -92,11 +103,9 @@ private fun ContenidoInicioOperador(estado: EstadoInicioOperador, alAbrir: (Pant
                     AvisoReposiciones(estado.reposiciones)
                 }
 
-                Text(
-                    text = stringResource(R.string.operador_estado_stock),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                // Cada tarjeta: el número y el chip con el nombre del estado (texto + color).
+                TituloSeccion(stringResource(R.string.operador_estado_stock))
+                // Tarjetas con el color del estado y su nombre en texto (nunca solo color).
+                // Al tocarlas se abre el inventario filtrado por ese estado.
                 Row(
                     modifier = Modifier.height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -107,24 +116,24 @@ private fun ContenidoInicioOperador(estado: EstadoInicioOperador, alAbrir: (Pant
                         EstadoStock.SIN_STOCK to estado.productosSinStock
                     )
                     tarjetas.forEach { (estadoStock, cantidad) ->
+                        val colores = coloresDe(estadoStock)
                         TarjetaResumen(
                             valor = cantidad.toString(),
-                            modifier = Modifier.weight(1f).fillMaxHeight()
-                        ) {
-                            ChipEstadoStock(estadoStock)
-                        }
+                            descripcion = stringResource(estadoStock.textoRes()),
+                            colorFondo = colores.fondo,
+                            colorContenido = colores.texto,
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            alTocar = { alVerInventario(estadoStock) }
+                        )
                     }
                 }
             }
         }
 
-        Text(
-            text = stringResource(R.string.inicio_accesos),
-            style = MaterialTheme.typography.titleMedium
-        )
+        TituloSeccion(stringResource(R.string.inicio_accesos))
         CuadriculaAccesos(
             listOf(
-                Acceso(stringResource(R.string.acceso_buscar_codigo), R.drawable.ic_buscar) {
+                Acceso(stringResource(R.string.acceso_buscar_codigo), R.drawable.ic_codigo_barras) {
                     alAbrir(Pantalla.BUSCAR_CODIGO)
                 },
                 Acceso(stringResource(R.string.acceso_inventario), R.drawable.ic_inventario) {
@@ -142,9 +151,20 @@ private fun ContenidoInicioOperador(estado: EstadoInicioOperador, alAbrir: (Pant
     }
 }
 
+/** Título pequeño de sección, en el color de texto secundario. Lo usan los tres inicios. */
+@Composable
+internal fun TituloSeccion(texto: String) {
+    Text(
+        text = texto,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+    )
+}
+
 /** Aviso destacado en ámbar (color de advertencia) con el detalle en texto. */
 @Composable
-private fun AvisoReposiciones(productos: List<Producto>) {
+private fun AvisoReposiciones(reposiciones: List<ReposicionPendiente>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -153,29 +173,27 @@ private fun AvisoReposiciones(productos: List<Producto>) {
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
             // Decorativo: el título ya explica el aviso.
-            Icon(painterResource(R.drawable.ic_reposicion), contentDescription = null)
+            Icon(painterResource(R.drawable.ic_advertencia), contentDescription = null)
             Column(
-                modifier = Modifier.padding(start = 12.dp),
+                modifier = Modifier.padding(start = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = pluralStringResource(
-                        R.plurals.operador_reposiciones_titulo, productos.size, productos.size
-                    ),
-                    style = MaterialTheme.typography.titleMedium
+                    text = pluralStringResource(R.plurals.operador_reposiciones_titulo, reposiciones.size),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
-                productos.forEach { producto ->
+                reposiciones.forEach { reposicion ->
                     Text(
                         text = stringResource(
-                            R.string.operador_reposicion_producto, producto.codigoInterno, producto.nombre
+                            R.string.operador_reposicion_producto,
+                            reposicion.producto.nombre,
+                            reposicion.producto.codigoInterno,
+                            reposicion.declaradaPorId
                         ),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                Text(
-                    text = stringResource(R.string.operador_reposiciones_ayuda),
-                    style = MaterialTheme.typography.bodyMedium
-                )
             }
         }
     }
@@ -192,9 +210,15 @@ private fun ContenidoInicioOperadorPreview() {
                 productosBajo = 1,
                 productosCritico = 1,
                 productosSinStock = 1,
-                reposiciones = listOf(Producto("2000000000213", "MU-01", "Silla de escritorio", "Muebles"))
+                reposiciones = listOf(
+                    ReposicionPendiente(
+                        Producto("2000000000213", "MU-01", "Silla de escritorio", "Muebles"),
+                        declaradaPorId = "EB-001"
+                    )
+                )
             ),
-            alAbrir = {}
+            alAbrir = {},
+            alVerInventario = {}
         )
     }
 }

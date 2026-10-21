@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,32 +27,60 @@ import androidx.compose.ui.unit.dp
 data class Acceso(val texto: String, @DrawableRes val icono: Int, val alTocar: () -> Unit)
 
 /**
- * Botón grande de acceso rápido (mínimo 88 dp de alto, muy por sobre los 48 dp exigidos).
- * El ícono es decorativo porque el texto ya dice adónde lleva.
+ * Botón grande de acceso rápido: tarjeta blanca con ícono morado y texto oscuro
+ * (mínimo 72 dp de alto, por sobre los 48 dp exigidos). El ícono es decorativo
+ * porque el texto ya dice adónde lleva.
+ *
+ * @param horizontal true = ícono a la izquierda del texto (para el botón que ocupa todo el ancho).
  */
 @Composable
-fun AccesoGrande(acceso: Acceso, modifier: Modifier = Modifier) {
+fun AccesoGrande(acceso: Acceso, modifier: Modifier = Modifier, horizontal: Boolean = false) {
     Card(
         onClick = acceso.alTocar,
-        modifier = modifier.heightIn(min = 88.dp),
+        modifier = modifier.heightIn(min = 72.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        )
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
-        ) {
-            Icon(painterResource(acceso.icono), contentDescription = null, modifier = Modifier.size(32.dp))
+        val icono: @Composable () -> Unit = {
+            Icon(
+                painterResource(acceso.icono),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+        val texto: @Composable () -> Unit = {
             Text(
                 text = acceso.texto,
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center
             )
+        }
+        if (horizontal) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                icono()
+                texto()
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp, horizontal = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
+            ) {
+                icono()
+                texto()
+            }
         }
     }
 }
@@ -61,21 +88,24 @@ fun AccesoGrande(acceso: Acceso, modifier: Modifier = Modifier) {
 /**
  * Cuadrícula de 2 columnas con los accesos. Cada fila usa IntrinsicSize.Min para que
  * sus dos botones tengan la misma altura aunque un texto ocupe más líneas.
+ * Si queda un acceso solo al final, ocupa todo el ancho en formato horizontal.
  */
 @Composable
 fun CuadriculaAccesos(accesos: List<Acceso>, modifier: Modifier = Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        // chunked(2) agrupa la lista de a dos: [[a, b], [c, d]].
+        // chunked(2) agrupa la lista de a dos: [[a, b], [c]].
         accesos.chunked(2).forEach { fila ->
-            Row(
-                modifier = Modifier.height(IntrinsicSize.Min),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                fila.forEach { acceso ->
-                    AccesoGrande(acceso, Modifier.weight(1f).fillMaxHeight())
+            if (fila.size == 1) {
+                AccesoGrande(fila.first(), Modifier.fillMaxWidth(), horizontal = true)
+            } else {
+                Row(
+                    modifier = Modifier.height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    fila.forEach { acceso ->
+                        AccesoGrande(acceso, Modifier.weight(1f).fillMaxHeight())
+                    }
                 }
-                // Si la fila quedó con uno solo, un espacio vacío ocupa el lugar del segundo.
-                if (fila.size == 1) Spacer(Modifier.weight(1f))
             }
         }
     }
