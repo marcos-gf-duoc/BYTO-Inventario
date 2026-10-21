@@ -53,7 +53,7 @@ com.byto.inventario
 | 3 | `PATCH /ubicaciones/{id}` | Habilitar o deshabilitar una ubicación `{ "estado": "ACTIVA" }` | Gerente | Sí |
 | 4 | `GET /ubicaciones/{id}/existencias?q=&estado=` | Inventario de una ubicación con búsqueda y filtro (NORMAL, BAJO, CRITICO, SIN_STOCK) | Operador, Encargado, Gerente | Sí |
 | 5 | `GET /ubicaciones/{id}/existencias/{codigoInterno}` | Detalle de un producto en esa ubicación | Todos | Sí |
-| 6 | `GET /productos/ean/{ean}` | Buscar producto por código de barras | Operador | Futuro (escáner) |
+| 6 | `GET /productos/ean/{ean}` | Buscar producto por código de barras | Operador | Sí (búsqueda manual P08; escáner futuro) |
 | 7 | `POST /movimientos` | Registrar entrada, salida, ajuste o conteo | Operador | Sí |
 | 8 | `GET /movimientos?ubicacionId=&usuarioId=&tipo=&desde=&hasta=` | Historial y auditoría filtrable (Caso §4.1) | Gerente; Operador (propios) | Sí |
 | 9 | `GET /alertas?ubicacionId=&tipo=&estado=` | Alertas abiertas o cerradas | Todos (según asignación) | Sí |
@@ -94,3 +94,59 @@ Respuesta `201 Created`
   ]
 }
 ```
+
+## Interfaz `InventarioRepository` (Kotlin)
+Una función `suspend` por endpoint; el número es el del endpoint. La implementan `FakeInventarioRepository` (E1) y `RemoteInventarioRepository` (E2). Código en `data/repository/InventarioRepository.kt`.
+
+```kotlin
+interface InventarioRepository {
+    suspend fun obtenerUsuariosDemo(): List<Usuario>                                    // 1
+    suspend fun obtenerUbicaciones(usuarioId: String): List<Ubicacion>                  // 2
+    suspend fun cambiarEstadoUbicacion(ubicacionId: String, activa: Boolean): Ubicacion // 3
+    suspend fun obtenerExistencias(                                                      // 4
+        ubicacionId: String, busqueda: String? = null, estado: EstadoStock? = null
+    ): List<ExistenciaDetalle>
+    suspend fun obtenerExistencia(ubicacionId: String, codigoInterno: String): ExistenciaDetalle // 5
+    suspend fun buscarProductoPorEan(ean: String): Producto?                             // 6 (null = no existe)
+    suspend fun registrarMovimiento(nuevo: NuevoMovimiento): ResultadoMovimiento         // 7
+    suspend fun obtenerMovimientos(filtro: FiltroMovimientos = FiltroMovimientos()): List<Movimiento> // 8
+    suspend fun obtenerAlertas(                                                          // 9
+        ubicacionId: String? = null, tipo: TipoAlerta? = null, estado: EstadoAlerta? = null
+    ): List<Alerta>
+    suspend fun declararReposicion(                                                      // 10
+        ubicacionId: String, codigoInterno: String, declaradaPor: String
+    ): Alerta
+    suspend fun marcarDescalceRevisado(alertaId: String): Alerta                         // 11
+    suspend fun obtenerTablero(): Tablero                                                // 12
+}
+```
+
+Tipos de apoyo (en `data/model/`):
+- `ExistenciaDetalle(existencia, producto, estado)`: fila del inventario con su producto y estado calculado.
+- `NuevoMovimiento(tipo, ubicacionId, codigoInterno, cantidad, operadorId, motivo?, observacion?)`: cuerpo del POST. `operadorId` existe solo en E1; en E2 el servidor lo obtiene de la sesión o el token.
+- `ResultadoMovimiento(movimiento, alertasGeneradas)`: respuesta del POST.
+- `FiltroMovimientos(ubicacionId?, usuarioId?, tipo?, desde?, hasta?)`: filtros del historial (`null` = sin filtrar; fechas inclusivas).
+- `Tablero(resumenes, totalAlertasAbiertas)` y `ResumenUbicacion(ubicacion, totalUnidades, productosNormal, productosBajo, productosCritico, productosSinStock, alertasAbiertas)`.
+
+### Errores
+- `SinConexionException`: no hay comunicación con el servidor (en E1, interruptor del repositorio falso).
+- `ReglaNegocioException(codigo, mensaje)`: equivale al JSON de error. Códigos usados:
+
+| Código | HTTP | Cuándo |
+|---|---|---|
+| `NO_ENCONTRADO` | 404 | Usuario, ubicación, existencia o alerta inexistente |
+| `CANTIDAD_INVALIDA` | 400 | Cantidad fuera de lo permitido para el tipo de movimiento |
+| `STOCK_INSUFICIENTE` | 400 | Salida mayor que el stock actual |
+| `MOTIVO_OBLIGATORIO` | 400 | Ajuste sin motivo |
+| `STOCK_NEGATIVO` | 400 | Ajuste que deja el stock bajo 0 |
+| `OBSERVACION_MUY_LARGA` | 400 | Observación de más de 200 caracteres |
+| `UBICACION_INACTIVA` | 409 | Movimiento en una ubicación deshabilitada |
+| `UBICACION_SIN_STOCK` | 409 | Movimiento en Casa Matriz |
+| `UBICACION_NO_ES_TIENDA` | 409 | Reposición declarada fuera de una tienda |
+| `REPOSICION_YA_ABIERTA` | 409 | Ya existe una reposición abierta de ese producto en esa tienda |
+| `ALERTA_NO_REVISABLE` | 409 | Se intenta revisar algo que no es un descalce abierto |
+
+### Efectos de `registrarMovimiento` sobre las alertas
+1. Conteo con diferencia → abre un `DESCALCE` con `diferencia = contado − sistema`.
+2. Stock resultante < 10 → abre un `STOCK_BAJO` si no hay uno abierto; si ya hay uno, solo actualiza su `nivel`. Stock ≥ 10 → cierra el abierto.
+3. Entrada → cierra la `REPOSICION` abierta de ese producto en esa ubicación.

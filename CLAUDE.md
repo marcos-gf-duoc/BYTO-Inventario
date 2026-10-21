@@ -48,6 +48,7 @@ com.byto.inventario
 - Código simple antes que ingenioso.
 
 ## Forma de trabajar
+- **Responde siempre en español**, incluidos los resúmenes y las explicaciones.
 - Haz **un paso pequeño a la vez**. Al terminar cada paso:
   1. Resume qué archivos creaste o cambiaste y por qué.
   2. Explica en pocas líneas los conceptos nuevos.

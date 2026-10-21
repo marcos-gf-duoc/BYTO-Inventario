@@ -134,4 +134,4 @@ Sin marcas. Ropa en talla única M (las tallas como variantes quedan fuera de E1
 | Stock bajo (crítico) | T-ST-1 | RH-01 | Movimiento 4 | Abierta |
 | Stock bajo (crítico, sin stock) | T-ST-1 | MU-01 | Movimiento 5 | Abierta |
 | Reposición | T-ST-1 | MU-01 | Declarada por EB-001 (2026-10-18T17:00:00Z) | Abierta |
-| Stock bajo (bajo) | B-ST-1 | DE-02 | Stock inicial | Abierta |
+| Stock bajo (bajo) | B-ST-1 | DE-02 | Carga inicial (2026-10-16T12:00:00Z) | Abierta |
