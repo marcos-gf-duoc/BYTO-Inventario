@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">BYTO</string>
+
+    <!-- Estados del stock (siempre visibles como texto, no solo como color) -->
+    <string name="estado_normal">Normal</string>
+    <string name="estado_bajo">Bajo</string>
+    <string name="estado_critico">Crítico</string>
+    <string name="estado_sin_stock">Sin stock</string>
+
+    <!-- Pantalla TEMPORAL de verificación (sub-paso 1c); se eliminará con el login -->
+    <string name="verificacion_titulo">Verificación de datos (temporal)</string>
+    <string name="verificacion_cargando">Cargando datos…</string>
+    <string name="verificacion_error">No se pudieron cargar los datos.</string>
+    <string name="verificacion_ubicaciones">Ubicaciones: %1$d</string>
+    <string name="verificacion_productos">Productos: %1$d</string>
+    <string name="verificacion_existencias">Existencias: %1$d</string>
+    <string name="verificacion_movimientos">Movimientos: %1$d</string>
+    <string name="verificacion_alertas_abiertas">Alertas abiertas: %1$d</string>
+    <string name="verificacion_titulo_estados">Estados del stock</string>
 </resources>
