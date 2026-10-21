@@ -17,7 +17,7 @@
     <string name="titulo_p07">Detalle de producto</string>
     <string name="titulo_p08">Buscar por código</string>
     <string name="titulo_p09">Registrar movimiento</string>
-    <string name="titulo_p10">Confirmación de movimiento</string>
+    <string name="titulo_p10">Movimiento registrado</string>
     <string name="titulo_p11">Alertas</string>
     <string name="titulo_p12">Declarar reposición</string>
     <string name="titulo_p13">Historial</string>
@@ -116,6 +116,7 @@
     <!-- P06 Inventario -->
     <string name="inventario_buscar">Buscar por nombre o código</string>
     <string name="inventario_borrar_busqueda">Borrar búsqueda</string>
+    <string name="inventario_buscar_por_codigo">Buscar por código de barras</string>
     <string name="inventario_filtro_todos">Todos</string>
     <string name="inventario_mostrando">Mostrando %1$d de %2$d productos</string>
     <string name="inventario_codigo_unidades">%1$s · %2$d u</string>
@@ -151,4 +152,67 @@
     <string name="buscar_no_encontrado">Producto no encontrado en esta ubicación</string>
     <string name="buscar_ver_detalle">Ver detalle</string>
     <string name="buscar_registrar">Registrar</string>
+
+    <!-- P09 Registrar movimiento -->
+    <string name="registrar_codigos">%1$s · EAN %2$s</string>
+    <string name="registrar_stock_actual">Stock actual: %1$d</string>
+    <string name="registrar_tipo">Tipo de movimiento</string>
+    <string name="registrar_cantidad">Cantidad</string>
+    <string name="registrar_cantidad_contada">Cantidad contada</string>
+    <string name="registrar_disminuir">Disminuir cantidad</string>
+    <string name="registrar_aumentar">Aumentar cantidad</string>
+    <string name="registrar_sentido">Sentido del ajuste</string>
+    <string name="registrar_sumar">Sumar</string>
+    <string name="registrar_restar">Restar</string>
+    <string name="registrar_motivo">Motivo (obligatorio)</string>
+    <string name="motivo_producto_danado">Producto dañado</string>
+    <string name="motivo_merma">Merma</string>
+    <string name="motivo_error_registro">Error de registro</string>
+    <string name="motivo_otro">Otro</string>
+    <string name="registrar_motivo_otro">Describe el motivo</string>
+    <string name="registrar_diferencia">Diferencia con el sistema: %1$s</string>
+    <string name="registrar_aviso_descalce">Se registrará una alerta de descalce.</string>
+    <string name="registrar_sin_diferencia">El conteo coincide con el sistema.</string>
+    <string name="registrar_observacion">Observación (opcional)</string>
+    <string name="registrar_contador">%1$d/%2$d</string>
+    <string name="registrar_stock_resultante">Stock resultante</string>
+    <string name="registrar_confirmar">Confirmar movimiento</string>
+    <string name="registrar_guardando">Guardando…</string>
+    <string name="registrar_error_envio">No se pudo registrar: el stock pudo cambiar mientras tanto. Vuelve atrás, abre el producto de nuevo e inténtalo otra vez.</string>
+    <string name="registrar_sin_permiso">Tu perfil no puede registrar movimientos en esta ubicación.</string>
+    <string name="error_cantidad_vacia">Ingresa una cantidad.</string>
+    <string name="error_cantidad_invalida">La cantidad debe ser mayor que 0.</string>
+    <string name="error_stock_insuficiente">La salida (%1$d) supera el stock actual (%2$d).</string>
+    <string name="error_stock_negativo">El ajuste dejaría el stock en %1$s; no puede quedar negativo.</string>
+    <string name="error_motivo">Elige un motivo; si es “Otro”, descríbelo.</string>
+    <string name="error_observacion">Máximo %1$d caracteres.</string>
+
+    <!-- P10 Confirmación de movimiento -->
+    <string name="confirmacion_titulo">Movimiento registrado</string>
+    <string name="confirmacion_tipo">Tipo</string>
+    <string name="confirmacion_producto">Producto</string>
+    <string name="confirmacion_cantidad">Cantidad</string>
+    <string name="confirmacion_stock">Stock</string>
+    <string name="confirmacion_hora">Hora</string>
+    <string name="confirmacion_unidades">%1$s u</string>
+    <string name="confirmacion_contado">%1$d u contadas</string>
+    <string name="confirmacion_producto_valor">%1$s · %2$s</string>
+    <string name="confirmacion_alertas">Alertas del movimiento</string>
+    <string name="confirmacion_sin_alertas">Este movimiento no generó ni cambió alertas.</string>
+    <string name="confirmacion_registrar_otro">Registrar otro</string>
+    <string name="confirmacion_volver_inventario">Volver al inventario</string>
+    <string name="alerta_stock_bajo">Stock bajo</string>
+    <string name="alerta_stock_critico">Stock crítico</string>
+    <string name="alerta_sin_stock">Sin stock</string>
+    <string name="alerta_descalce">Descalce</string>
+    <string name="alerta_reposicion">Reposición</string>
+    <string name="alerta_nueva">%1$s (nueva)</string>
+    <string name="alerta_actualizada">%1$s (actualizada)</string>
+    <string name="alerta_cerrada">%1$s (cerrada)</string>
+    <string name="alerta_detalle_bajo_nueva">%1$s quedó bajo el mínimo de %2$d unidades.</string>
+    <string name="alerta_detalle_bajo_actualizada">%1$s sigue bajo el mínimo de %2$d unidades.</string>
+    <string name="alerta_detalle_bajo_cerrada">%1$s volvió a %2$d unidades o más.</string>
+    <string name="alerta_detalle_descalce">Lo contado difiere del sistema en %1$s unidades. Un Encargado o el Gerente debe revisarlo.</string>
+    <string name="alerta_detalle_reposicion_cerrada">La entrada cumple la reposición pendiente de %1$s.</string>
+    <string name="alerta_detalle_reposicion">Reposición de %1$s.</string>
 </resources>
