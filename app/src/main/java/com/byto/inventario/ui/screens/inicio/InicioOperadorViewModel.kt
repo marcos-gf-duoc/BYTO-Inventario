@@ -17,9 +17,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** Producto con una reposición abierta y el ID de quien la declaró (por ejemplo "EB-001"). */
+data class ReposicionPendiente(val producto: Producto, val declaradaPorId: String)
+
 /**
  * Estado de P03.
- * @param reposiciones productos con una reposición abierta en la ubicación activa.
+ * @param reposiciones reposiciones abiertas en la ubicación activa.
  */
 data class EstadoInicioOperador(
     val cargando: Boolean = true,
@@ -27,7 +30,7 @@ data class EstadoInicioOperador(
     val productosBajo: Int = 0,
     val productosCritico: Int = 0,
     val productosSinStock: Int = 0,
-    val reposiciones: List<Producto> = emptyList(),
+    val reposiciones: List<ReposicionPendiente> = emptyList(),
     val error: Boolean = false,
     val irASinConexion: Boolean = false,
     val sinSesion: Boolean = false
@@ -69,7 +72,9 @@ class InicioOperadorViewModel(
                 val estados = existencias.map { it.estado }
                 // mapNotNull descarta los null: si una alerta no tuviera producto, se omite.
                 val productosConReposicion = reposiciones.mapNotNull { alerta ->
-                    existencias.find { it.producto.codigoInterno == alerta.codigoInterno }?.producto
+                    val producto = existencias
+                        .find { it.producto.codigoInterno == alerta.codigoInterno }?.producto
+                    producto?.let { ReposicionPendiente(it, alerta.declaradaPorId.orEmpty()) }
                 }
 
                 _estado.update {

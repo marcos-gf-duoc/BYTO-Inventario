@@ -1,14 +1,18 @@
 package com.byto.inventario.di
 
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.byto.inventario.BytoApp
 import com.byto.inventario.ui.navigation.SesionViewModel
+import com.byto.inventario.ui.screens.buscar.BuscarCodigoViewModel
+import com.byto.inventario.ui.screens.detalle.DetalleProductoViewModel
 import com.byto.inventario.ui.screens.inicio.InicioEncargadoViewModel
 import com.byto.inventario.ui.screens.inicio.InicioGerenteViewModel
 import com.byto.inventario.ui.screens.inicio.InicioOperadorViewModel
+import com.byto.inventario.ui.screens.inventario.InventarioViewModel
 import com.byto.inventario.ui.screens.login.LoginViewModel
 import com.byto.inventario.ui.screens.seleccion.SeleccionUbicacionViewModel
 import com.byto.inventario.ui.screens.sinconexion.SinConexionViewModel
@@ -44,6 +48,19 @@ object FabricaViewModels {
         initializer {
             val c = contenedor()
             InicioGerenteViewModel(c.inventarioRepository, c.sesionRepository)
+        }
+        initializer {
+            val c = contenedor()
+            // createSavedStateHandle(): entrega los argumentos de la ruta (por ejemplo, el filtro).
+            InventarioViewModel(c.inventarioRepository, c.sesionRepository, createSavedStateHandle())
+        }
+        initializer {
+            val c = contenedor()
+            DetalleProductoViewModel(c.inventarioRepository, c.sesionRepository, createSavedStateHandle())
+        }
+        initializer {
+            val c = contenedor()
+            BuscarCodigoViewModel(c.inventarioRepository, c.sesionRepository)
         }
     }
 

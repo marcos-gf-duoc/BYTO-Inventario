@@ -1,9 +1,7 @@
 package com.byto.inventario.ui.screens.inicio
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -39,11 +37,11 @@ import com.byto.inventario.data.model.Ubicacion
 import com.byto.inventario.di.FabricaViewModels
 import com.byto.inventario.ui.components.Acceso
 import com.byto.inventario.ui.components.CuadriculaAccesos
-import com.byto.inventario.ui.components.EtiquetaTexto
 import com.byto.inventario.ui.components.IndicadorCarga
 import com.byto.inventario.ui.components.TarjetaResumen
 import com.byto.inventario.ui.navigation.Pantalla
 import com.byto.inventario.ui.theme.BYTOTheme
+import com.byto.inventario.ui.theme.EstadoCriticoTexto
 
 /** P05 Inicio Gerente. */
 @Composable
@@ -80,7 +78,8 @@ private fun ContenidoInicioGerente(estado: EstadoInicioGerente, alAbrir: (Pantal
     ) {
         Text(
             text = stringResource(R.string.inicio_saludo, estado.gerenteId),
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
         )
 
         when {
@@ -95,15 +94,16 @@ private fun ContenidoInicioGerente(estado: EstadoInicioGerente, alAbrir: (Pantal
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     TarjetaResumen(
-                        valor = stringResource(
-                            R.string.gerente_activas_valor, estado.ubicacionesActivas, estado.totalUbicaciones
-                        ),
+                        valor = estado.ubicacionesActivas.toString(),
+                        sufijo = stringResource(R.string.gerente_de_total, estado.totalUbicaciones),
                         descripcion = stringResource(R.string.gerente_ubicaciones_activas),
+                        colorValor = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     TarjetaResumen(
                         valor = estado.alertasAbiertas.toString(),
                         descripcion = stringResource(R.string.gerente_alertas_abiertas),
+                        colorValor = EstadoCriticoTexto,
                         modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     TarjetaResumen(
@@ -113,24 +113,22 @@ private fun ContenidoInicioGerente(estado: EstadoInicioGerente, alAbrir: (Pantal
                     )
                 }
 
-                Text(
-                    text = stringResource(R.string.gerente_alertas_por_ubicacion),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                TablaAlertasPorUbicacion(estado.resumenes)
+                TituloSeccion(stringResource(R.string.gerente_alertas_por_ubicacion))
+                if (estado.resumenes.isEmpty()) {
+                    Text(stringResource(R.string.gerente_sin_alertas), style = MaterialTheme.typography.bodyLarge)
+                } else {
+                    TablaAlertasPorUbicacion(estado.resumenes)
+                }
             }
         }
 
-        Text(
-            text = stringResource(R.string.inicio_accesos),
-            style = MaterialTheme.typography.titleMedium
-        )
+        TituloSeccion(stringResource(R.string.inicio_accesos))
         CuadriculaAccesos(
             listOf(
                 Acceso(stringResource(R.string.acceso_historial), R.drawable.ic_historial) {
                     alAbrir(Pantalla.HISTORIAL)
                 },
-                Acceso(stringResource(R.string.acceso_ubicaciones), R.drawable.ic_tienda) {
+                Acceso(stringResource(R.string.acceso_ubicaciones), R.drawable.ic_ubicacion) {
                     alAbrir(Pantalla.ADMINISTRAR_UBICACIONES)
                 },
                 Acceso(stringResource(R.string.acceso_exportar_reporte), R.drawable.ic_exportar) {
@@ -144,44 +142,38 @@ private fun ContenidoInicioGerente(estado: EstadoInicioGerente, alAbrir: (Pantal
     }
 }
 
-/** Una fila por ubicación: nombre a la izquierda y cantidad de alertas a la derecha. */
+/** Una fila por ubicación con alertas: ID y nombre a la izquierda, cantidad a la derecha. */
 @Composable
 private fun TablaAlertasPorUbicacion(resumenes: List<ResumenUbicacion>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         resumenes.forEachIndexed { indice, resumen ->
             if (indice > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 48.dp)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    // TalkBack lee la fila completa: "T-ST-1 · BYTO Santiago Centro, 4 alertas".
+                    .heightIn(min = 72.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    // TalkBack lee la fila completa: "T-ST-1, BYTO Santiago Centro, 4 alertas".
                     .semantics(mergeDescendants = true) {},
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                FlowRow(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    itemVerticalAlignment = Alignment.CenterVertically
-                ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = resumen.ubicacion.id, style = MaterialTheme.typography.titleMedium)
                     Text(
-                        text = "${resumen.ubicacion.id} · ${resumen.ubicacion.nombre}",
-                        style = MaterialTheme.typography.bodyLarge
+                        text = resumen.ubicacion.nombre,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    if (!resumen.ubicacion.activa) EtiquetaTexto(stringResource(R.string.seleccion_inactiva))
                 }
                 Text(
                     text = pluralStringResource(
                         R.plurals.gerente_alertas_cantidad, resumen.alertasAbiertas, resumen.alertasAbiertas
                     ),
-                    style = MaterialTheme.typography.bodyLarge,
-                    // En negrita las que tienen alertas, para que destaquen (además del número).
-                    fontWeight = if (resumen.alertasAbiertas > 0) FontWeight.Bold else FontWeight.Normal,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
