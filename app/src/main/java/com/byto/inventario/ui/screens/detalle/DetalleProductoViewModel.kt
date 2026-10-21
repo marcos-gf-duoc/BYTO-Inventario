@@ -50,7 +50,8 @@ class DetalleProductoViewModel(
     private val _estado = MutableStateFlow(EstadoDetalle())
     val estado: StateFlow<EstadoDetalle> = _estado.asStateFlow()
 
-    private var reintentarAlVolver = false
+    /** false hasta la primera vez que la pantalla se muestra (esa carga ya la hizo init). */
+    private var yaSeMostro = false
 
     init {
         cargar()
@@ -66,7 +67,7 @@ class DetalleProductoViewModel(
         viewModelScope.launch {
             _estado.update {
                 it.copy(
-                    cargando = true,
+                    cargando = it.error,
                     error = false,
                     ubicacion = ubicacion,
                     puedeRegistrar = Permisos.puedeRegistrarMovimientos(usuario, ubicacion)
@@ -85,7 +86,6 @@ class DetalleProductoViewModel(
 
                 _estado.update { it.copy(cargando = false, detalle = detalle, movimientos = movimientos) }
             } catch (e: SinConexionException) {
-                reintentarAlVolver = true
                 _estado.update { it.copy(irASinConexion = true) }
             } catch (e: ReglaNegocioException) {
                 _estado.update {
@@ -99,11 +99,12 @@ class DetalleProductoViewModel(
         _estado.update { it.copy(irASinConexion = false) }
     }
 
-    fun reintentarSiHaceFalta() {
-        if (reintentarAlVolver) {
-            reintentarAlVolver = false
-            cargar()
-        }
+    /**
+     * La pantalla lo llama cada vez que vuelve a verse. La primera vez no hace nada (init ya
+     * cargó); las siguientes recarga, por ejemplo al volver de P16 o tras registrar un movimiento.
+     */
+    fun alMostrarse() {
+        if (yaSeMostro) cargar() else yaSeMostro = true
     }
 
     private companion object {

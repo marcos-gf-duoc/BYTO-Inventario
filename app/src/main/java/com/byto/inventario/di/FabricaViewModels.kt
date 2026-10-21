@@ -14,6 +14,8 @@ import com.byto.inventario.ui.screens.inicio.InicioGerenteViewModel
 import com.byto.inventario.ui.screens.inicio.InicioOperadorViewModel
 import com.byto.inventario.ui.screens.inventario.InventarioViewModel
 import com.byto.inventario.ui.screens.login.LoginViewModel
+import com.byto.inventario.ui.screens.movimiento.ConfirmacionViewModel
+import com.byto.inventario.ui.screens.movimiento.RegistrarMovimientoViewModel
 import com.byto.inventario.ui.screens.seleccion.SeleccionUbicacionViewModel
 import com.byto.inventario.ui.screens.sinconexion.SinConexionViewModel
 
@@ -61,6 +63,14 @@ object FabricaViewModels {
         initializer {
             val c = contenedor()
             BuscarCodigoViewModel(c.inventarioRepository, c.sesionRepository)
+        }
+        initializer {
+            val c = contenedor()
+            RegistrarMovimientoViewModel(c.inventarioRepository, c.sesionRepository, createSavedStateHandle())
+        }
+        initializer {
+            val c = contenedor()
+            ConfirmacionViewModel(c.inventarioRepository, c.sesionRepository, createSavedStateHandle())
         }
     }
 

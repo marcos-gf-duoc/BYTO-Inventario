@@ -65,7 +65,7 @@ fun PantallaBuscarCodigo(
 ) {
     val estado by viewModel.estado.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.reintentarSiHaceFalta() }
+    LaunchedEffect(Unit) { viewModel.alMostrarse() }
     LaunchedEffect(estado.irASinConexion) {
         if (estado.irASinConexion) {
             viewModel.navegacionSinConexionRealizada()
@@ -219,6 +219,8 @@ private fun Resultado(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             OutlinedButton(
+                // Texto en el color de marca, como en el mockup (por defecto Material lo deja gris).
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                 onClick = alVerDetalle,
                 modifier = Modifier
                     .weight(1f)

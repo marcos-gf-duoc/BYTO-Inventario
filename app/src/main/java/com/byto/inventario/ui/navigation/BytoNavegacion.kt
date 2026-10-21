@@ -36,6 +36,8 @@ import com.byto.inventario.ui.screens.inicio.PantallaInicioGerente
 import com.byto.inventario.ui.screens.inicio.PantallaInicioOperador
 import com.byto.inventario.ui.screens.inventario.PantallaInventario
 import com.byto.inventario.ui.screens.login.PantallaLogin
+import com.byto.inventario.ui.screens.movimiento.PantallaConfirmacion
+import com.byto.inventario.ui.screens.movimiento.PantallaRegistrarMovimiento
 import com.byto.inventario.ui.screens.seleccion.PantallaSeleccionUbicacion
 import com.byto.inventario.ui.screens.sinconexion.PantallaSinConexion
 
@@ -97,6 +99,9 @@ fun BytoNavegacion(
                     subtitulo = when (pantallaConBarras) {
                         Pantalla.INICIO_GERENTE -> stringResource(R.string.subtitulo_todas_ubicaciones)
                         Pantalla.DETALLE_PRODUCTO -> stringResource(R.string.detalle_subtitulo)
+                        // En el registro importa quién y dónde: "T-ST-1 · OP-001".
+                        Pantalla.REGISTRAR_MOVIMIENTO, Pantalla.CONFIRMACION_MOVIMIENTO ->
+                            if (ubicacion != null && usuario != null) "${ubicacion?.id} · ${usuario?.id}" else null
                         else -> ubicacion?.let { "${it.id} · ${it.nombre}" }
                     },
                     alCambiarUbicacion = { navController.navigate(Pantalla.SELECCION_UBICACION.ruta) },
@@ -104,14 +109,14 @@ fun BytoNavegacion(
                         sesionViewModel.cerrarSesion()
                         navController.navegarLimpiandoPila(Pantalla.LOGIN)
                     },
-                    alVolver = if (pantallaConBarras in Pantalla.raices) null else {
+                    alVolver = if (pantallaConBarras in Pantalla.sinFlechaVolver) null else {
                         { navController.navigateUp() }
                     }
                 )
             }
         },
         bottomBar = {
-            if (pantallaConBarras != null) {
+            if (pantallaConBarras != null && pantallaConBarras !in Pantalla.sinBarraInferior) {
                 BarraInferior(
                     seleccionada = seccionDe(pantallaConBarras),
                     alElegir = { seccion -> irASeccion(navController, seccion, inicio) }
@@ -168,6 +173,7 @@ fun BytoNavegacion(
             ) {
                 PantallaInventario(
                     alAbrirDetalle = { codigo -> navController.navigate(Pantalla.rutaDetalle(codigo)) },
+                    alBuscarPorCodigo = { navController.navigate(Pantalla.BUSCAR_CODIGO.ruta) },
                     alSinConexion = irASinConexion,
                     alSinSesion = irALogin
                 )
@@ -179,6 +185,44 @@ fun BytoNavegacion(
                 PantallaDetalleProducto(
                     alConocerNombre = { nombre -> tituloDinamico = entrada.id to nombre },
                     alRegistrar = { codigo -> navController.navigate(Pantalla.rutaRegistrar(codigo)) },
+                    alSinConexion = irASinConexion,
+                    alSinSesion = irALogin
+                )
+            }
+            composable(
+                route = Pantalla.REGISTRAR_MOVIMIENTO.patron,
+                arguments = listOf(navArgument(Pantalla.ARG_CODIGO_INTERNO) { type = NavType.StringType })
+            ) {
+                PantallaRegistrarMovimiento(
+                    alRegistrado = { datos ->
+                        navController.navigate(
+                            Pantalla.rutaConfirmacion(datos.movimientoId, datos.generadas, datos.actualizadas, datos.cerradas)
+                        ) {
+                            // Saca P09 de la pila: "atrás" desde P10 no vuelve al formulario ya enviado.
+                            popUpTo(Pantalla.REGISTRAR_MOVIMIENTO.patron) { inclusive = true }
+                        }
+                    },
+                    alSinConexion = irASinConexion,
+                    alSinSesion = irALogin
+                )
+            }
+            composable(
+                route = Pantalla.CONFIRMACION_MOVIMIENTO.patron,
+                arguments = listOf(
+                    navArgument(Pantalla.ARG_MOVIMIENTO_ID) { type = NavType.StringType },
+                    navArgument(Pantalla.ARG_GENERADAS) { type = NavType.StringType; nullable = true; defaultValue = null },
+                    navArgument(Pantalla.ARG_ACTUALIZADAS) { type = NavType.StringType; nullable = true; defaultValue = null },
+                    navArgument(Pantalla.ARG_CERRADAS) { type = NavType.StringType; nullable = true; defaultValue = null }
+                )
+            ) {
+                PantallaConfirmacion(
+                    alRegistrarOtro = { codigo ->
+                        // P09 nuevo (con el stock actualizado) en lugar de P10.
+                        navController.navigate(Pantalla.rutaRegistrar(codigo)) {
+                            popUpTo(Pantalla.CONFIRMACION_MOVIMIENTO.patron) { inclusive = true }
+                        }
+                    },
+                    alVolverInventario = { navegarComoSeccion(navController, Pantalla.rutaInventario(), inicio) },
                     alSinConexion = irASinConexion,
                     alSinSesion = irALogin
                 )
@@ -216,7 +260,9 @@ private val implementadas = setOf(
     Pantalla.INICIO_GERENTE,
     Pantalla.INVENTARIO,
     Pantalla.DETALLE_PRODUCTO,
-    Pantalla.BUSCAR_CODIGO
+    Pantalla.BUSCAR_CODIGO,
+    Pantalla.REGISTRAR_MOVIMIENTO,
+    Pantalla.CONFIRMACION_MOVIMIENTO
 )
 
 /** Navega a [pantalla] borrando toda la pila, para que "atrás" no regrese a lo anterior. */
@@ -230,7 +276,8 @@ private fun NavHostController.navegarLimpiandoPila(pantalla: Pantalla) {
 private fun seccionDe(pantalla: Pantalla?): SeccionInferior? = when (pantalla) {
     Pantalla.INICIO_OPERADOR, Pantalla.INICIO_ENCARGADO, Pantalla.INICIO_GERENTE -> SeccionInferior.INICIO
     // Detalle y búsqueda trabajan sobre el inventario, así que mantienen esa sección resaltada.
-    Pantalla.INVENTARIO, Pantalla.DETALLE_PRODUCTO, Pantalla.BUSCAR_CODIGO -> SeccionInferior.INVENTARIO
+    Pantalla.INVENTARIO, Pantalla.DETALLE_PRODUCTO, Pantalla.BUSCAR_CODIGO,
+    Pantalla.CONFIRMACION_MOVIMIENTO -> SeccionInferior.INVENTARIO
     Pantalla.ALERTAS -> SeccionInferior.ALERTAS
     Pantalla.HISTORIAL -> SeccionInferior.HISTORIAL
     else -> null

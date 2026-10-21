@@ -33,7 +33,11 @@ enum class Pantalla(
     REGISTRAR_MOVIMIENTO(
         "registrar_movimiento", "P09", R.string.titulo_p09, "registrar_movimiento/{codigoInterno}"
     ),
-    CONFIRMACION_MOVIMIENTO("confirmacion_movimiento", "P10", R.string.titulo_p10),
+    // Recibe el ID del movimiento y, opcionales, los IDs de sus alertas separados por comas.
+    CONFIRMACION_MOVIMIENTO(
+        "confirmacion_movimiento", "P10", R.string.titulo_p10,
+        "confirmacion_movimiento/{movimientoId}?generadas={generadas}&actualizadas={actualizadas}&cerradas={cerradas}"
+    ),
     ALERTAS("alertas", "P11", R.string.titulo_p11),
     DECLARAR_REPOSICION("declarar_reposicion", "P12", R.string.titulo_p12),
     HISTORIAL("historial", "P13", R.string.titulo_p13),
@@ -45,6 +49,10 @@ enum class Pantalla(
         // Nombres de los argumentos, compartidos por las rutas y los ViewModels que los leen.
         const val ARG_ESTADO = "estado"
         const val ARG_CODIGO_INTERNO = "codigoInterno"
+        const val ARG_MOVIMIENTO_ID = "movimientoId"
+        const val ARG_GENERADAS = "generadas"
+        const val ARG_ACTUALIZADAS = "actualizadas"
+        const val ARG_CERRADAS = "cerradas"
 
         /** Busca la pantalla a partir del patrón que informa el NavController. */
         fun desdeRuta(patron: String?): Pantalla? = entries.find { it.patron == patron }
@@ -59,8 +67,26 @@ enum class Pantalla(
         /** Ruta para registrar un movimiento de un producto en la ubicación activa. */
         fun rutaRegistrar(codigoInterno: String): String = "${REGISTRAR_MOVIMIENTO.ruta}/$codigoInterno"
 
+        /** Ruta a la confirmación: "confirmacion_movimiento/MOV-0007?generadas=ALE-0008&actualizadas=&cerradas=". */
+        fun rutaConfirmacion(
+            movimientoId: String,
+            generadas: List<String>,
+            actualizadas: List<String>,
+            cerradas: List<String>
+        ): String = "${CONFIRMACION_MOVIMIENTO.ruta}/$movimientoId" +
+            "?$ARG_GENERADAS=${generadas.joinToString(",")}" +
+            "&$ARG_ACTUALIZADAS=${actualizadas.joinToString(",")}" +
+            "&$ARG_CERRADAS=${cerradas.joinToString(",")}"
+
         /** Pantallas sin barras: aún no hay sesión, o no se puede usar la app. */
         val sinBarras = setOf(LOGIN, SELECCION_UBICACION, SIN_CONEXION)
+
+        /** Formularios a pantalla completa: barra superior, pero sin barra inferior (como en el mockup). */
+        val sinBarraInferior = setOf(REGISTRAR_MOVIMIENTO)
+
+        /** Sin flecha "Volver": P10 es un resultado final; se sale con sus botones (o con "atrás"). */
+        // get(): se calcula al leerlo, así no importa que [raices] se declare más abajo.
+        val sinFlechaVolver: Set<Pantalla> get() = raices + CONFIRMACION_MOVIMIENTO
 
         /** Pantallas raíz de la barra inferior: no muestran flecha "Volver". */
         val raices = setOf(INICIO_OPERADOR, INICIO_ENCARGADO, INICIO_GERENTE, INVENTARIO, ALERTAS, HISTORIAL)

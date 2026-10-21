@@ -48,17 +48,22 @@ import com.byto.inventario.ui.components.IndicadorCarga
 import com.byto.inventario.ui.components.textoRes
 import com.byto.inventario.ui.theme.BYTOTheme
 
-/** P06 Inventario de la ubicación activa. [alAbrirDetalle] recibe el código interno. */
+/**
+ * P06 Inventario de la ubicación activa. [alAbrirDetalle] recibe el código interno;
+ * [alBuscarPorCodigo] abre P08 (disponible para todos los perfiles).
+ */
 @Composable
 fun PantallaInventario(
     alAbrirDetalle: (String) -> Unit,
+    alBuscarPorCodigo: () -> Unit,
     alSinConexion: () -> Unit,
     alSinSesion: () -> Unit,
     viewModel: InventarioViewModel = viewModel(factory = FabricaViewModels.Factory)
 ) {
     val estado by viewModel.estado.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.reintentarSiHaceFalta() }
+    // Corre cada vez que la pantalla aparece: al volver a ella, el ViewModel recarga los datos.
+    LaunchedEffect(Unit) { viewModel.alMostrarse() }
     LaunchedEffect(estado.irASinConexion) {
         if (estado.irASinConexion) {
             viewModel.navegacionSinConexionRealizada()
@@ -74,7 +79,8 @@ fun PantallaInventario(
         alCambiarBusqueda = viewModel::cambiarBusqueda,
         alCambiarFiltro = viewModel::cambiarFiltro,
         alLimpiar = viewModel::limpiar,
-        alAbrirDetalle = alAbrirDetalle
+        alAbrirDetalle = alAbrirDetalle,
+        alBuscarPorCodigo = alBuscarPorCodigo
     )
 }
 
@@ -84,7 +90,8 @@ private fun ContenidoInventario(
     alCambiarBusqueda: (String) -> Unit,
     alCambiarFiltro: (EstadoStock?) -> Unit,
     alLimpiar: () -> Unit,
-    alAbrirDetalle: (String) -> Unit
+    alAbrirDetalle: (String) -> Unit,
+    alBuscarPorCodigo: () -> Unit
 ) {
     // Para cerrar el teclado al tocar "Buscar" en él.
     val foco = LocalFocusManager.current
@@ -101,12 +108,22 @@ private fun ContenidoInventario(
             label = { Text(stringResource(R.string.inventario_buscar)) },
             singleLine = true,
             leadingIcon = { Icon(painterResource(R.drawable.ic_buscar), contentDescription = null) },
+            // A la derecha: borrar (solo si hay texto) y abrir la búsqueda por código de barras (P08).
+            // Cada IconButton mide 48 dp y lleva su descripción para TalkBack.
             trailingIcon = {
-                if (estado.busqueda.isNotEmpty()) {
-                    IconButton(onClick = { alCambiarBusqueda("") }) {
+                Row {
+                    if (estado.busqueda.isNotEmpty()) {
+                        IconButton(onClick = { alCambiarBusqueda("") }) {
+                            Icon(
+                                painterResource(R.drawable.ic_borrar),
+                                contentDescription = stringResource(R.string.inventario_borrar_busqueda)
+                            )
+                        }
+                    }
+                    IconButton(onClick = alBuscarPorCodigo) {
                         Icon(
-                            painterResource(R.drawable.ic_borrar),
-                            contentDescription = stringResource(R.string.inventario_borrar_busqueda)
+                            painterResource(R.drawable.ic_codigo_barras),
+                            contentDescription = stringResource(R.string.inventario_buscar_por_codigo)
                         )
                     }
                 }
@@ -247,7 +264,8 @@ private fun ContenidoInventarioPreview() {
             alCambiarBusqueda = {},
             alCambiarFiltro = {},
             alLimpiar = {},
-            alAbrirDetalle = {}
+            alAbrirDetalle = {},
+            alBuscarPorCodigo = {}
         )
     }
 }

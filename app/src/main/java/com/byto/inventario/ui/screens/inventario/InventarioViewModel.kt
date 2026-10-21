@@ -56,7 +56,8 @@ class InventarioViewModel(
     )
     val estado: StateFlow<EstadoInventario> = _estado.asStateFlow()
 
-    private var reintentarAlVolver = false
+    /** false hasta la primera vez que la pantalla se muestra (esa carga ya la hizo init). */
+    private var yaSeMostro = false
 
     init {
         cargar()
@@ -69,12 +70,11 @@ class InventarioViewModel(
             return
         }
         viewModelScope.launch {
-            _estado.update { it.copy(cargando = true, error = false) }
+            _estado.update { it.copy(cargando = it.error, error = false) }
             try {
                 val existencias = repositorio.obtenerExistencias(ubicacion.id)
                 actualizar { it.copy(cargando = false, todas = existencias) }
             } catch (e: SinConexionException) {
-                reintentarAlVolver = true
                 _estado.update { it.copy(irASinConexion = true) }
             } catch (e: ReglaNegocioException) {
                 _estado.update { it.copy(cargando = false, error = true) }
@@ -114,10 +114,11 @@ class InventarioViewModel(
         _estado.update { it.copy(irASinConexion = false) }
     }
 
-    fun reintentarSiHaceFalta() {
-        if (reintentarAlVolver) {
-            reintentarAlVolver = false
-            cargar()
-        }
+    /**
+     * La pantalla lo llama cada vez que vuelve a verse. La primera vez no hace nada (init ya
+     * cargó); las siguientes recarga, por ejemplo al volver de P16 o tras registrar un movimiento.
+     */
+    fun alMostrarse() {
+        if (yaSeMostro) cargar() else yaSeMostro = true
     }
 }

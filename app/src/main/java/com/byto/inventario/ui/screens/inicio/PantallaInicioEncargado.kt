@@ -40,6 +40,7 @@ import com.byto.inventario.ui.components.CuadriculaAccesos
 import com.byto.inventario.ui.components.EtiquetaTexto
 import com.byto.inventario.ui.components.IndicadorCarga
 import com.byto.inventario.ui.components.TarjetaResumen
+import com.byto.inventario.ui.components.TituloSeccion
 import com.byto.inventario.ui.navigation.Pantalla
 import com.byto.inventario.ui.theme.BYTOTheme
 import com.byto.inventario.ui.theme.EstadoBajoTexto
@@ -55,7 +56,8 @@ fun PantallaInicioEncargado(
 ) {
     val estado by viewModel.estado.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.reintentarSiHaceFalta() }
+    // Corre cada vez que la pantalla aparece: al volver a ella, el ViewModel recarga los datos.
+    LaunchedEffect(Unit) { viewModel.alMostrarse() }
     LaunchedEffect(estado.irASinConexion) {
         if (estado.irASinConexion) {
             viewModel.navegacionSinConexionRealizada()

@@ -38,6 +38,7 @@ import com.byto.inventario.ui.components.Acceso
 import com.byto.inventario.ui.components.CuadriculaAccesos
 import com.byto.inventario.ui.components.IndicadorCarga
 import com.byto.inventario.ui.components.TarjetaResumen
+import com.byto.inventario.ui.components.TituloSeccion
 import com.byto.inventario.ui.components.coloresDe
 import com.byto.inventario.ui.components.textoRes
 import com.byto.inventario.ui.navigation.Pantalla
@@ -59,7 +60,8 @@ fun PantallaInicioOperador(
 ) {
     val estado by viewModel.estado.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.reintentarSiHaceFalta() }
+    // Corre cada vez que la pantalla aparece: al volver a ella, el ViewModel recarga los datos.
+    LaunchedEffect(Unit) { viewModel.alMostrarse() }
     LaunchedEffect(estado.irASinConexion) {
         if (estado.irASinConexion) {
             viewModel.navegacionSinConexionRealizada()
@@ -149,17 +151,6 @@ private fun ContenidoInicioOperador(
             )
         )
     }
-}
-
-/** Título pequeño de sección, en el color de texto secundario. Lo usan los tres inicios. */
-@Composable
-internal fun TituloSeccion(texto: String) {
-    Text(
-        text = texto,
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
-    )
 }
 
 /** Aviso destacado en ámbar (color de advertencia) con el detalle en texto. */

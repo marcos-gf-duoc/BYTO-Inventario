@@ -50,6 +50,7 @@ class BuscarCodigoViewModel(
     val estado: StateFlow<EstadoBuscarCodigo> = _estado.asStateFlow()
 
     private var reintentarAlVolver = false
+    private var yaSeMostro = false
 
     /** Al cambiar el texto se borran el error y el resultado anteriores: ya no corresponden. */
     fun cambiarCodigo(texto: String) {
@@ -98,11 +99,15 @@ class BuscarCodigoViewModel(
         _estado.update { it.copy(irASinConexion = false) }
     }
 
-    /** Al volver de P16 se repite la última búsqueda. */
-    fun reintentarSiHaceFalta() {
-        if (reintentarAlVolver) {
+    /**
+     * Cada vez que la pantalla vuelve a verse se repite la búsqueda si había un resultado
+     * (el stock pudo cambiar tras registrar un movimiento) o si falló por falta de conexión.
+     */
+    fun alMostrarse() {
+        if (yaSeMostro && (reintentarAlVolver || _estado.value.resultado != null)) {
             reintentarAlVolver = false
             buscar()
         }
+        yaSeMostro = true
     }
 }

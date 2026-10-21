@@ -68,7 +68,8 @@ fun PantallaDetalleProducto(
 ) {
     val estado by viewModel.estado.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.reintentarSiHaceFalta() }
+    // Corre cada vez que la pantalla aparece: al volver a ella, el ViewModel recarga los datos.
+    LaunchedEffect(Unit) { viewModel.alMostrarse() }
     LaunchedEffect(estado.irASinConexion) {
         if (estado.irASinConexion) {
             viewModel.navegacionSinConexionRealizada()
