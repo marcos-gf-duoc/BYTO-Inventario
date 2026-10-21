@@ -7,14 +7,99 @@
     <string name="estado_critico">Crítico</string>
     <string name="estado_sin_stock">Sin stock</string>
 
-    <!-- Pantalla TEMPORAL de verificación (sub-paso 1c); se eliminará con el login -->
-    <string name="verificacion_titulo">Verificación de datos (temporal)</string>
-    <string name="verificacion_cargando">Cargando datos…</string>
-    <string name="verificacion_error">No se pudieron cargar los datos.</string>
-    <string name="verificacion_ubicaciones">Ubicaciones: %1$d</string>
-    <string name="verificacion_productos">Productos: %1$d</string>
-    <string name="verificacion_existencias">Existencias: %1$d</string>
-    <string name="verificacion_movimientos">Movimientos: %1$d</string>
-    <string name="verificacion_alertas_abiertas">Alertas abiertas: %1$d</string>
-    <string name="verificacion_titulo_estados">Estados del stock</string>
+    <!-- Títulos de las 16 pantallas -->
+    <string name="titulo_p01">Login</string>
+    <string name="titulo_p02">Selección de ubicación</string>
+    <string name="titulo_p03">Inicio Operador</string>
+    <string name="titulo_p04">Inicio Encargado</string>
+    <string name="titulo_p05">Inicio Gerente</string>
+    <string name="titulo_p06">Inventario</string>
+    <string name="titulo_p07">Detalle de producto</string>
+    <string name="titulo_p08">Buscar por código</string>
+    <string name="titulo_p09">Registrar movimiento</string>
+    <string name="titulo_p10">Confirmación de movimiento</string>
+    <string name="titulo_p11">Alertas</string>
+    <string name="titulo_p12">Declarar reposición</string>
+    <string name="titulo_p13">Historial</string>
+    <string name="titulo_p14">Administrar ubicaciones</string>
+    <string name="titulo_p15">Exportar reporte</string>
+    <string name="titulo_p16">Sin conexión</string>
+
+    <!-- Barras -->
+    <string name="accion_volver">Volver</string>
+    <string name="accion_cambiar_ubicacion">Cambiar ubicación</string>
+    <string name="accion_cerrar_sesion">Cerrar sesión</string>
+    <string name="seccion_inicio">Inicio</string>
+    <string name="seccion_inventario">Inventario</string>
+    <string name="seccion_alertas">Alertas</string>
+    <string name="seccion_historial">Historial</string>
+
+    <string name="en_construccion">En construcción</string>
+    <string name="cargando">Cargando…</string>
+
+    <!-- Perfiles y tipos de ubicación -->
+    <string name="perfil_operador">Operador</string>
+    <string name="perfil_encargado_bodega">Encargado de bodega</string>
+    <string name="perfil_gerente">Gerencial</string>
+    <string name="tipo_tienda">Tienda</string>
+    <string name="tipo_bodega">Bodega</string>
+    <string name="tipo_administrativa">Administrativa</string>
+
+    <!-- P01 Login -->
+    <string name="login_instruccion">Elige un usuario de prueba para ingresar.</string>
+    <string name="login_id_perfil">%1$s · %2$s</string>
+    <string name="login_ingresar">Ingresar</string>
+    <string name="demo_sin_conexion_activa">Modo demo: conexión simulada cortada. Mantén presionado el título para restablecerla.</string>
+
+    <!-- P02 Selección de ubicación -->
+    <string name="seleccion_usuario">%1$s (%2$s)</string>
+    <string name="seleccion_instruccion">Elige la ubicación donde vas a trabajar.</string>
+    <string name="seleccion_solo_consulta">Solo consulta</string>
+    <string name="seleccion_inactiva">Inactiva</string>
+    <string name="seleccion_sin_ubicaciones">No tienes ubicaciones disponibles.</string>
+    <string name="error_carga">No se pudieron cargar los datos.</string>
+
+    <!-- P16 Sin conexión -->
+    <string name="sin_conexion_mensaje">No pudimos comunicarnos con el servidor. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="sin_conexion_reintentar">Reintentar</string>
+
+    <!-- Inicios (P03, P04, P05) -->
+    <string name="inicio_saludo">Hola, %1$s</string>
+    <string name="inicio_accesos">Accesos rápidos</string>
+    <string name="acceso_buscar_codigo">Buscar por código</string>
+    <string name="acceso_inventario">Inventario</string>
+    <string name="acceso_registrar_movimiento">Registrar movimiento</string>
+    <string name="acceso_alertas">Alertas</string>
+    <string name="acceso_declarar_reposicion">Declarar reposición</string>
+    <string name="acceso_historial">Historial</string>
+    <string name="acceso_ubicaciones">Ubicaciones</string>
+    <string name="acceso_exportar_reporte">Exportar reporte</string>
+
+    <!-- P03 Inicio Operador -->
+    <string name="operador_estado_stock">Productos con stock bajo en esta ubicación</string>
+    <plurals name="operador_reposiciones_titulo">
+        <item quantity="one">Hay %1$d reposición abierta</item>
+        <item quantity="many">Hay %1$d reposiciones abiertas</item>
+        <item quantity="other">Hay %1$d reposiciones abiertas</item>
+    </plurals>
+    <string name="operador_reposiciones_ayuda">Registra la entrada cuando llegue el producto.</string>
+    <string name="operador_reposicion_producto">• %1$s · %2$s</string>
+
+    <!-- P04 Inicio Encargado -->
+    <string name="encargado_alertas_abiertas">Alertas abiertas</string>
+    <string name="encargado_descalces">Descalces por revisar</string>
+    <string name="encargado_reposiciones">Reposiciones abiertas</string>
+    <string name="encargado_tiendas">Tiendas a cargo</string>
+
+    <!-- P05 Inicio Gerente -->
+    <string name="gerente_ubicaciones_activas">Ubicaciones activas</string>
+    <string name="gerente_activas_valor">%1$d de %2$d</string>
+    <string name="gerente_alertas_abiertas">Alertas abiertas</string>
+    <string name="gerente_movimientos_hoy">Movimientos de hoy</string>
+    <string name="gerente_alertas_por_ubicacion">Alertas abiertas por ubicación</string>
+    <plurals name="gerente_alertas_cantidad">
+        <item quantity="one">%1$d alerta</item>
+        <item quantity="many">%1$d alertas</item>
+        <item quantity="other">%1$d alertas</item>
+    </plurals>
 </resources>
