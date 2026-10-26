@@ -3,7 +3,7 @@
 Instrucciones para Claude Code en este repositorio. Léelas completas antes de cada tarea.
 
 ## Qué es este proyecto
-- App Android **BYTO**: inventario multitienda (MVP académico, asignatura DSY1105, Duoc UC). Proyecto **individual** de un estudiante que está aprendiendo.
+- App Android **BYTO**: inventario multitienda (MVP académico, asignatura DSY1105, Duoc UC). Proyecto **grupal** de dos estudiantes que están aprendiendo.
 - Simulación pedagógica: **todos los datos son ficticios**.
 - Las decisiones de negocio están en `docs/decisiones_E1.md` y la arquitectura y el contrato de la API en `docs/arquitectura_API.md`. **Esos documentos mandan**: no inventes requisitos, ubicaciones, usuarios, productos ni reglas que no estén ahí. Si algo falta o es ambiguo, pregunta antes de decidir.
 
