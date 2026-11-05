@@ -89,6 +89,11 @@ Documento vivo con las decisiones confirmadas por el estudiante. Fuente para las
 | Reposición | Manual (Encargado) | El Encargado la declara | El operario registra una entrada del producto en esa tienda |
 | Reposición automática por crítico | — | **Futuro** | — |
 
+Pantalla P11 Alertas:
+- Muestra solo las alertas **abiertas** de las ubicaciones del usuario (el Gerente ve todas).
+- Orden: reposiciones, descalces y stock bajo (sin stock, crítico, bajo); dentro de cada grupo, la más reciente primero.
+- "Marcar revisado" solo aparece en los descalces, para el Encargado y el Gerente.
+
 Reposición en E2: solo se registra la entrada en la tienda; la salida en la bodega (traspaso vinculado) queda para el futuro. Al declararla, el Encargado puede agregar una observación opcional (máx. 200 caracteres), como muestra el mockup P12.
 
 ## Catálogo sintético (25 productos: 5 categorías × 5; EAN-13 ficticios con prefijo interno 2)

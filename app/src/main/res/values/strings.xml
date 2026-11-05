@@ -167,6 +167,33 @@
     <string name="escanear_permiso_ajustes">Abrir ajustes</string>
     <string name="escanear_escribir">Escribir el código a mano</string>
 
+    <!-- P11 Alertas -->
+    <plurals name="alertas_subtitulo">
+        <item quantity="one">%1$s · %2$d abierta</item>
+        <item quantity="many">%1$s · %2$d abiertas</item>
+        <item quantity="other">%1$s · %2$d abiertas</item>
+    </plurals>
+    <string name="alertas_filtro_todas">Todas</string>
+    <string name="alertas_filtro_stock_bajo">Stock bajo</string>
+    <string name="alertas_filtro_descalce">Descalce</string>
+    <string name="alertas_filtro_reposicion">Reposición</string>
+    <string name="alertas_etiqueta_reposicion">REPOSICIÓN</string>
+    <string name="alertas_etiqueta_descalce">DESCALCE %1$s</string>
+    <string name="alertas_etiqueta_bajo">STOCK BAJO</string>
+    <string name="alertas_etiqueta_critico">CRÍTICO</string>
+    <string name="alertas_etiqueta_sin_stock">SIN STOCK</string>
+    <string name="alertas_detalle_reposicion">%1$s · Declarada por %2$s</string>
+    <string name="alertas_detalle_descalce">%1$s · Conteo %2$s · %3$s</string>
+    <string name="alertas_detalle_descalce_sin_operador">%1$s · Conteo %2$s</string>
+    <string name="alertas_detalle_stock">%1$s · %2$d u</string>
+    <string name="alertas_observacion">Observación: %1$s</string>
+    <string name="alertas_marcar_revisado">Marcar revisado</string>
+    <string name="alertas_revisado">Descalce marcado como revisado.</string>
+    <string name="alertas_ya_no_revisable">Esta alerta ya había sido revisada. La lista se actualizó.</string>
+    <string name="alertas_error_revision">No se pudo marcar como revisado. Intenta de nuevo.</string>
+    <string name="alertas_vacio">No hay alertas abiertas en tus ubicaciones.</string>
+    <string name="alertas_vacio_filtro">No hay alertas abiertas de este tipo.</string>
+
     <!-- P09 Registrar movimiento -->
     <string name="registrar_codigos">%1$s · EAN %2$s</string>
     <string name="registrar_stock_actual">Stock actual: %1$d</string>

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.byto.inventario.BytoApp
 import com.byto.inventario.ui.navigation.SesionViewModel
+import com.byto.inventario.ui.screens.alertas.AlertasViewModel
 import com.byto.inventario.ui.screens.buscar.BuscarCodigoViewModel
 import com.byto.inventario.ui.screens.detalle.DetalleProductoViewModel
 import com.byto.inventario.ui.screens.escaner.EscanearCodigoViewModel
@@ -66,6 +67,10 @@ object FabricaViewModels {
             BuscarCodigoViewModel(c.inventarioRepository, c.sesionRepository)
         }
         initializer { EscanearCodigoViewModel(contenedor().vibrador) }
+        initializer {
+            val c = contenedor()
+            AlertasViewModel(c.inventarioRepository, c.sesionRepository)
+        }
         initializer {
             val c = contenedor()
             RegistrarMovimientoViewModel(c.inventarioRepository, c.sesionRepository, createSavedStateHandle())

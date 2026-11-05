@@ -39,4 +39,18 @@ class PermisosTest {
     fun sinSesionNoRegistra() {
         assertFalse(Permisos.puedeRegistrarMovimientos(null, ubicacion("T-ST-1")))
     }
+
+    // ---------- Revisar descalces (P11) ----------
+
+    @Test
+    fun encargadoYGerenteRevisanDescalces() {
+        assertTrue(Permisos.puedeRevisarDescalces(usuario("EB-001")))
+        assertTrue(Permisos.puedeRevisarDescalces(usuario("GE-001")))
+    }
+
+    @Test
+    fun operadorYSinSesionNoRevisanDescalces() {
+        assertFalse(Permisos.puedeRevisarDescalces(usuario("OP-001")))
+        assertFalse(Permisos.puedeRevisarDescalces(null))
+    }
 }

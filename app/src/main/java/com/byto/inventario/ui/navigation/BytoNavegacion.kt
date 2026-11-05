@@ -28,6 +28,7 @@ import com.byto.inventario.di.FabricaViewModels
 import com.byto.inventario.ui.components.BarraInferior
 import com.byto.inventario.ui.components.BarraSuperior
 import com.byto.inventario.ui.components.SeccionInferior
+import com.byto.inventario.ui.screens.alertas.PantallaAlertas
 import com.byto.inventario.ui.screens.buscar.PantallaBuscarCodigo
 import com.byto.inventario.ui.screens.detalle.PantallaDetalleProducto
 import com.byto.inventario.ui.screens.enconstruccion.PantallaEnConstruccion
@@ -64,6 +65,8 @@ fun BytoNavegacion(
     // Título que una pantalla define en tiempo de ejecución (P07 usa el nombre del producto).
     // Se guarda junto al id de su entrada en la pila, para no mostrarlo en otra pantalla.
     var tituloDinamico by remember { mutableStateOf<Pair<String, String>?>(null) }
+    // Lo mismo para el subtítulo (P11 muestra "EB-001 · 7 abiertas").
+    var subtituloDinamico by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     // Íconos de la barra de estado (hora, batería): blancos sobre la barra morada,
     // oscuros sobre el fondo claro de login, selección y sin conexión.
@@ -97,14 +100,17 @@ fun BytoNavegacion(
                     titulo = tituloDinamico?.takeIf { it.first == entradaActual?.id }?.second
                         ?: stringResource(pantallaConBarras.titulo),
                     // Subtítulo según la pantalla, como en los mockups.
-                    subtitulo = when (pantallaConBarras) {
-                        Pantalla.INICIO_GERENTE -> stringResource(R.string.subtitulo_todas_ubicaciones)
-                        Pantalla.DETALLE_PRODUCTO -> stringResource(R.string.detalle_subtitulo)
-                        // En el registro importa quién y dónde: "T-ST-1 · OP-001".
-                        Pantalla.REGISTRAR_MOVIMIENTO, Pantalla.CONFIRMACION_MOVIMIENTO ->
-                            if (ubicacion != null && usuario != null) "${ubicacion?.id} · ${usuario?.id}" else null
-                        else -> ubicacion?.let { "${it.id} · ${it.nombre}" }
-                    },
+                    subtitulo = subtituloDinamico?.takeIf { it.first == entradaActual?.id }?.second
+                        ?: when (pantallaConBarras) {
+                            Pantalla.INICIO_GERENTE -> stringResource(R.string.subtitulo_todas_ubicaciones)
+                            Pantalla.DETALLE_PRODUCTO -> stringResource(R.string.detalle_subtitulo)
+                            // En el registro importa quién y dónde: "T-ST-1 · OP-001".
+                            Pantalla.REGISTRAR_MOVIMIENTO, Pantalla.CONFIRMACION_MOVIMIENTO ->
+                                if (ubicacion != null && usuario != null) "${ubicacion?.id} · ${usuario?.id}" else null
+                            // Alertas abarca todas las ubicaciones del usuario: mientras carga, su ID.
+                            Pantalla.ALERTAS -> usuario?.id
+                            else -> ubicacion?.let { "${it.id} · ${it.nombre}" }
+                        },
                     alCambiarUbicacion = { navController.navigate(Pantalla.SELECCION_UBICACION.ruta) },
                     alCerrarSesion = {
                         sesionViewModel.cerrarSesion()
@@ -256,6 +262,13 @@ fun BytoNavegacion(
                     alEscribirCodigo = { navController.popBackStack() }
                 )
             }
+            composable(Pantalla.ALERTAS.ruta) { entrada ->
+                PantallaAlertas(
+                    alConocerSubtitulo = { texto -> subtituloDinamico = entrada.id to texto },
+                    alSinConexion = irASinConexion,
+                    alSinSesion = irALogin
+                )
+            }
             composable(Pantalla.SIN_CONEXION.ruta) {
                 // popBackStack vuelve a la pantalla que falló, y esta repite su carga.
                 PantallaSinConexion(alReintentar = { navController.popBackStack() })
@@ -284,7 +297,8 @@ private val implementadas = setOf(
     Pantalla.BUSCAR_CODIGO,
     Pantalla.ESCANEAR_CODIGO,
     Pantalla.REGISTRAR_MOVIMIENTO,
-    Pantalla.CONFIRMACION_MOVIMIENTO
+    Pantalla.CONFIRMACION_MOVIMIENTO,
+    Pantalla.ALERTAS
 )
 
 /** Navega a [pantalla] borrando toda la pila, para que "atrás" no regrese a lo anterior. */

@@ -22,4 +22,11 @@ object Permisos {
             ubicacion.activa &&
             ubicacion.id in usuario.ubicacionesIds
     }
+
+    /**
+     * Marcar un descalce como revisado: el Encargado de bodega o el Gerente
+     * (docs/decisiones_E1.md, "Alertas"). El Operador solo las ve.
+     */
+    fun puedeRevisarDescalces(usuario: Usuario?): Boolean =
+        usuario?.perfil == Perfil.ENCARGADO_BODEGA || usuario?.perfil == Perfil.GERENTE
 }

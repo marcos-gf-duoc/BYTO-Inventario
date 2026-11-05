@@ -17,8 +17,15 @@ object Fechas {
     private val FORMATO_FECHA_HORA: DateTimeFormatter =
         DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZONA_CHILE)
 
+    /** Sin año, para listas donde el espacio es poco (alertas e historial de los mockups). */
+    private val FORMATO_FECHA_HORA_CORTA: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("dd-MM HH:mm").withZone(ZONA_CHILE)
+
     /** Instante UTC como texto en hora de Chile, por ejemplo 18:40Z → "16-10-2026 15:40". */
     fun fechaHoraChile(instante: Instant): String = FORMATO_FECHA_HORA.format(instante)
+
+    /** Igual que [fechaHoraChile] pero sin año, por ejemplo 12:30Z → "17-10 09:30". */
+    fun fechaHoraCortaChile(instante: Instant): String = FORMATO_FECHA_HORA_CORTA.format(instante)
 
     /**
      * Primer y último instante del día de hoy en Chile, para filtrar movimientos.
