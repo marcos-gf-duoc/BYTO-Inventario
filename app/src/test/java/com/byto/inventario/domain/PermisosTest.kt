@@ -48,6 +48,16 @@ class PermisosTest {
         assertTrue(Permisos.puedeRevisarDescalces(usuario("GE-001")))
     }
 
+    // ---------- Administrar ubicaciones (P14) ----------
+
+    @Test
+    fun soloElGerenteAdministraUbicaciones() {
+        assertTrue(Permisos.puedeAdministrarUbicaciones(usuario("GE-001")))
+        assertFalse(Permisos.puedeAdministrarUbicaciones(usuario("EB-001")))
+        assertFalse(Permisos.puedeAdministrarUbicaciones(usuario("OP-001")))
+        assertFalse(Permisos.puedeAdministrarUbicaciones(null))
+    }
+
     @Test
     fun operadorYSinSesionNoRevisanDescalces() {
         assertFalse(Permisos.puedeRevisarDescalces(usuario("OP-001")))

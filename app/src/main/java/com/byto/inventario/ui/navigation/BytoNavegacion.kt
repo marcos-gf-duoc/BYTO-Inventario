@@ -44,6 +44,7 @@ import com.byto.inventario.ui.screens.movimiento.PantallaRegistrarMovimiento
 import com.byto.inventario.ui.screens.reposicion.PantallaDeclararReposicion
 import com.byto.inventario.ui.screens.seleccion.PantallaSeleccionUbicacion
 import com.byto.inventario.ui.screens.sinconexion.PantallaSinConexion
+import com.byto.inventario.ui.screens.ubicaciones.PantallaAdministrarUbicaciones
 
 /**
  * Raíz de la interfaz: barras superior e inferior más el NavHost, que cambia
@@ -281,6 +282,13 @@ fun BytoNavegacion(
                     alSinSesion = irALogin
                 )
             }
+            composable(Pantalla.ADMINISTRAR_UBICACIONES.ruta) { entrada ->
+                PantallaAdministrarUbicaciones(
+                    alConocerSubtitulo = { texto -> subtituloDinamico = entrada.id to texto },
+                    alSinConexion = irASinConexion,
+                    alSinSesion = irALogin
+                )
+            }
             composable(Pantalla.DECLARAR_REPOSICION.ruta) {
                 PantallaDeclararReposicion(alSinConexion = irASinConexion, alSinSesion = irALogin)
             }
@@ -315,7 +323,8 @@ private val implementadas = setOf(
     Pantalla.CONFIRMACION_MOVIMIENTO,
     Pantalla.ALERTAS,
     Pantalla.DECLARAR_REPOSICION,
-    Pantalla.HISTORIAL
+    Pantalla.HISTORIAL,
+    Pantalla.ADMINISTRAR_UBICACIONES
 )
 
 /** Navega a [pantalla] borrando toda la pila, para que "atrás" no regrese a lo anterior. */
@@ -328,6 +337,8 @@ private fun NavHostController.navegarLimpiandoPila(pantalla: Pantalla) {
 /** Qué ítem de la barra inferior se resalta en cada pantalla. */
 private fun seccionDe(pantalla: Pantalla?): SeccionInferior? = when (pantalla) {
     Pantalla.INICIO_OPERADOR, Pantalla.INICIO_ENCARGADO, Pantalla.INICIO_GERENTE -> SeccionInferior.INICIO
+    // Herramientas del Gerente que se abren desde su inicio (así aparecen en los mockups).
+    Pantalla.ADMINISTRAR_UBICACIONES, Pantalla.EXPORTAR_REPORTE -> SeccionInferior.INICIO
     // Detalle y búsqueda trabajan sobre el inventario, así que mantienen esa sección resaltada.
     Pantalla.INVENTARIO, Pantalla.DETALLE_PRODUCTO, Pantalla.BUSCAR_CODIGO, Pantalla.ESCANEAR_CODIGO,
     Pantalla.CONFIRMACION_MOVIMIENTO -> SeccionInferior.INVENTARIO

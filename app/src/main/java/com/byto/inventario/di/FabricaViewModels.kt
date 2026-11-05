@@ -22,6 +22,7 @@ import com.byto.inventario.ui.screens.movimiento.RegistrarMovimientoViewModel
 import com.byto.inventario.ui.screens.reposicion.DeclararReposicionViewModel
 import com.byto.inventario.ui.screens.seleccion.SeleccionUbicacionViewModel
 import com.byto.inventario.ui.screens.sinconexion.SinConexionViewModel
+import com.byto.inventario.ui.screens.ubicaciones.AdministrarUbicacionesViewModel
 
 /**
  * Fábrica única de ViewModels. Android no sabe crear un ViewModel que pide parámetros
@@ -80,6 +81,10 @@ object FabricaViewModels {
         initializer {
             val c = contenedor()
             HistorialViewModel(c.inventarioRepository, c.sesionRepository)
+        }
+        initializer {
+            val c = contenedor()
+            AdministrarUbicacionesViewModel(c.inventarioRepository, c.sesionRepository)
         }
         initializer {
             val c = contenedor()

@@ -102,6 +102,10 @@ Pantalla P13 Historial / auditoría (Caso §4.1):
 - Filtros: ubicación, fecha desde, fecha hasta (días en hora de Chile, ambos inclusivos), operador y tipo.
 - Si "Desde" es posterior a "Hasta", se muestra el error y no se busca hasta corregirlo.
 
+Pantalla P14 Administrar ubicaciones (solo Gerente):
+- Muestra las 12 ubicaciones con stock agrupadas por región; Casa Matriz no aparece.
+- Activar es inmediato. Desactivar pide confirmación, porque los operadores dejan de poder registrar movimientos en esa ubicación.
+
 Reposición en E2: solo se registra la entrada en la tienda; la salida en la bodega (traspaso vinculado) queda para el futuro. Al declararla, el Encargado puede agregar una observación opcional (máx. 200 caracteres), como muestra el mockup P12.
 
 ## Catálogo sintético (25 productos: 5 categorías × 5; EAN-13 ficticios con prefijo interno 2)

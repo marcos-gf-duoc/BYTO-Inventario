@@ -21,7 +21,7 @@
     <string name="titulo_p11">Alertas</string>
     <string name="titulo_p12">Declarar reposición</string>
     <string name="titulo_p13">Historial / auditoría</string>
-    <string name="titulo_p14">Administrar ubicaciones</string>
+    <string name="titulo_p14">Ubicaciones</string>
     <string name="titulo_p15">Exportar reporte</string>
     <string name="titulo_p16">Sin conexión</string>
     <string name="titulo_p17">Escanear código</string>
@@ -237,6 +237,18 @@
     <string name="historial_quitar_fecha">Quitar fecha</string>
     <string name="historial_titulo_desde">Desde (fecha inicial)</string>
     <string name="historial_titulo_hasta">Hasta (fecha final)</string>
+
+    <!-- P14 Administrar ubicaciones -->
+    <string name="ubicaciones_subtitulo">%1$d de %2$d activas</string>
+    <string name="ubicaciones_fila">%1$s · %2$s</string>
+    <string name="ubicaciones_confirmar_titulo">¿Desactivar %1$s?</string>
+    <string name="ubicaciones_confirmar_texto">%1$s quedará inactiva: los operadores no podrán registrar movimientos en ella hasta que se vuelva a activar.</string>
+    <string name="ubicaciones_confirmar_si">Desactivar</string>
+    <string name="ubicaciones_confirmar_no">Cancelar</string>
+    <string name="ubicaciones_activada">%1$s quedó activa.</string>
+    <string name="ubicaciones_desactivada">%1$s quedó inactiva.</string>
+    <string name="ubicaciones_error_cambio">No se pudo cambiar el estado. Intenta de nuevo.</string>
+    <string name="ubicaciones_sin_permiso">Solo el Gerente puede administrar las ubicaciones.</string>
 
     <!-- P09 Registrar movimiento -->
     <string name="registrar_codigos">%1$s · EAN %2$s</string>

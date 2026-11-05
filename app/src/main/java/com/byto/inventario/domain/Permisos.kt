@@ -29,4 +29,7 @@ object Permisos {
      */
     fun puedeRevisarDescalces(usuario: Usuario?): Boolean =
         usuario?.perfil == Perfil.ENCARGADO_BODEGA || usuario?.perfil == Perfil.GERENTE
+
+    /** Activar o desactivar tiendas y bodegas: solo el Gerente (Caso §3.1, endpoint 3). */
+    fun puedeAdministrarUbicaciones(usuario: Usuario?): Boolean = usuario?.perfil == Perfil.GERENTE
 }
