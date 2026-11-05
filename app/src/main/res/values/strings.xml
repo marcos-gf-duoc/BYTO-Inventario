@@ -250,6 +250,24 @@
     <string name="ubicaciones_error_cambio">No se pudo cambiar el estado. Intenta de nuevo.</string>
     <string name="ubicaciones_sin_permiso">Solo el Gerente puede administrar las ubicaciones.</string>
 
+    <!-- P15 Exportar reporte -->
+    <string name="exportar_tipo">Tipo de reporte</string>
+    <string name="exportar_tipo_stock">Stock por ubicación</string>
+    <string name="exportar_tipo_movimientos">Movimientos</string>
+    <string name="exportar_tipo_alertas">Alertas</string>
+    <string name="exportar_ubicacion">Ubicación</string>
+    <string name="exportar_ubicacion_todas">Todas las ubicaciones</string>
+    <string name="exportar_ubicacion_opcion">%1$s · %2$s</string>
+    <string name="exportar_formato">Formato</string>
+    <string name="exportar_formato_csv">CSV (compatible con Excel)</string>
+    <string name="exportar_ayuda">Elige dónde guardar el archivo, por ejemplo, Descargas.</string>
+    <string name="exportar_boton">Exportar</string>
+    <string name="exportar_guardado">Reporte guardado: %1$s</string>
+    <string name="exportar_error_tipo">Elige qué reporte quieres exportar.</string>
+    <string name="exportar_error_ubicacion">Elige la ubicación del reporte.</string>
+    <string name="exportar_error_sin_destino">No se eligió dónde guardar el archivo. Toca Exportar para intentarlo de nuevo.</string>
+    <string name="exportar_error_escritura">No se pudo guardar el archivo. Prueba con otra carpeta.</string>
+
     <!-- P09 Registrar movimiento -->
     <string name="registrar_codigos">%1$s · EAN %2$s</string>
     <string name="registrar_stock_actual">Stock actual: %1$d</string>

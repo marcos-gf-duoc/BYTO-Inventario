@@ -18,7 +18,7 @@ Confirmado por el estudiante:
   - Viven fuera de los repositorios de inventario, en `dispositivo/`, para que la lógica no dependa de Android y siga siendo fácil de probar.
   - La pantalla pide los permisos y abre los selectores del sistema, porque estas APIs necesitan una Activity.
   - El ViewModel decide qué hacer con el resultado.
-- El texto del CSV lo arma una función pura (`domain/GeneradorCsv`), con pruebas unitarias. Escribirlo en el archivo elegido es tarea de `dispositivo/`.
+- El texto del CSV lo arma una función pura (`domain/ReporteCsv`), con pruebas unitarias. Escribirlo en el archivo elegido es tarea de `dispositivo/`.
 
 ## Estructura de paquetes
 ```
@@ -26,7 +26,7 @@ com.byto.inventario
 ├── BytoApp.kt                 (Application: crea el AppContainer)
 ├── MainActivity.kt
 ├── di/AppContainer.kt
-├── domain/                    (ReglasInventario, ValidadorEan, Permisos, Fechas, GeneradorCsv: lógica pura)
+├── domain/                    (ReglasInventario, ValidadorEan, Permisos, Fechas, ReporteCsv: lógica pura)
 ├── data/
 │   ├── model/                 (Ubicacion, Producto, Existencia, Movimiento, Alerta, Usuario, enums)
 │   ├── repository/            (InventarioRepository, SesionRepository)
@@ -81,7 +81,7 @@ En E2 no hay servidor: cada endpoint corresponde a una función de `InventarioRe
 | 5 | `GET /ubicaciones/{id}/existencias/{codigoInterno}` | Detalle de un producto en esa ubicación | Todos | Sí |
 | 6 | `GET /productos/ean/{ean}` | Buscar producto por código de barras | Operador | Sí (búsqueda manual P08 y escáner P17) |
 | 7 | `POST /movimientos` | Registrar entrada, salida, ajuste o conteo | Operador | Sí |
-| 8 | `GET /movimientos?ubicacionId=&usuarioId=&tipo=&desde=&hasta=` | Historial y auditoría filtrable (Caso §4.1) | Gerente; Operador (propios) | Sí |
+| 8 | `GET /movimientos?ubicacionId=&usuarioId=&tipo=&desde=&hasta=` | Historial y auditoría filtrable (Caso §4.1) | Gerente; Encargado (sus ubicaciones); Operador (propios) | Sí |
 | 9 | `GET /alertas?ubicacionId=&tipo=&estado=` | Alertas abiertas o cerradas | Todos (según asignación) | Sí |
 | 10 | `POST /alertas/reposicion` | Declarar reposición `{ "ubicacionId", "codigoInterno", "observacion" }` (observación opcional) | Encargado | Sí |
 | 11 | `PATCH /alertas/{id}` | Marcar descalce como revisado `{ "estado": "REVISADA" }` | Encargado, Gerente | Sí |

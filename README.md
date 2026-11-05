@@ -78,6 +78,7 @@ com.byto.inventario
 | P12 | Declarar reposición (Encargado), con validación por campo |
 | P13 | Historial / auditoría con filtros por ubicación, fechas, operador y tipo |
 | P14 | Administrar ubicaciones (Gerente): activar o desactivar tiendas y bodegas |
+| P15 | Exportar reporte (Gerente): stock, movimientos o alertas en CSV compatible con Excel |
 | P16 | Sin conexión |
 | P17 | Escanear código: lectura de EAN-13 con la cámara (CameraX + ML Kit) y vibración al leer |
 
@@ -86,15 +87,15 @@ com.byto.inventario
 | Funcionalidad | Detalle |
 |---|---|
 | Persistencia local | Room: movimientos, alertas y estado de las ubicaciones se conservan al cerrar la app |
-| Recursos nativos | Cámara (escáner, con manejo del permiso) y vibración |
+| Recursos nativos | Cámara (escáner, con manejo del permiso), almacenamiento de archivos (reporte CSV con "Guardar como") y vibración |
+| Formularios validados | Errores por campo con ícono y texto; reglas en `domain/` con pruebas unitarias |
 
 ### En desarrollo para esta entrega
 
 | Funcionalidad | Detalle |
 |---|---|
-| P15 | Exportar reporte |
-| Exportar reporte | Archivo CSV compatible con Excel, guardado en la carpeta que elija el usuario |
-| Animaciones | Transiciones entre pantallas y retroalimentación en formularios y estados |
+| Animaciones | Transiciones entre pantallas y retroalimentación en los formularios que aún no la tienen |
+| Pulido de formularios | Llevar el mensaje de error con ícono a P08 y P09 |
 
 ---
 

@@ -33,7 +33,7 @@ Instrucciones para Claude Code en este repositorio. Léelas completas antes de c
 com.byto.inventario
 ├── BytoApp.kt, MainActivity.kt
 ├── di/AppContainer.kt
-├── domain/                           (lógica pura: ReglasInventario, ValidadorEan, Permisos, Fechas, GeneradorCsv)
+├── domain/                           (lógica pura: ReglasInventario, ValidadorEan, Permisos, Fechas, ReporteCsv)
 ├── data/model/                       (Ubicacion, Producto, Existencia, Movimiento, Alerta, Usuario, enums)
 ├── data/repository/                  (InventarioRepository, SesionRepository)
 ├── data/local/                       (Room: BytoDatabase, entidades, DAOs, LocalInventarioRepository)

@@ -97,7 +97,7 @@ Pantalla P11 Alertas:
 Pantalla P13 Historial / auditoría (Caso §4.1):
 - Quién ve qué:
   - Gerente: todos los movimientos.
-  - Encargado: los de sus ubicaciones (su bodega y las tiendas que consulta). **Por confirmar:** el endpoint 8 no lo menciona.
+  - Encargado: los de sus ubicaciones (su bodega y las tiendas que consulta). Confirmado por el estudiante.
   - Operador: solo los suyos, sin filtro de operador.
 - Filtros: ubicación, fecha desde, fecha hasta (días en hora de Chile, ambos inclusivos), operador y tipo.
 - Si "Desde" es posterior a "Hasta", se muestra el error y no se busca hasta corregirlo.
@@ -197,7 +197,14 @@ Sin marcas. Ropa en talla única M (las tallas como variantes quedan fuera de E2
 - Tipos: stock por ubicación, movimientos y alertas. Filtro por ubicación y formato "CSV (compatible con Excel)", como en el mockup.
 - Pensado para Excel en español: codificación UTF-8 con BOM (para que se vean bien las tildes) y separador `;`.
 - Fechas en hora de Chile (`America/Santiago`). Los operadores aparecen solo con su ID anonimizado.
-- Nombre sugerido del archivo: `byto_<tipo>_<ubicación>_<AAAA-MM-DD>.csv`.
+- Nombre sugerido del archivo: `byto_<tipo>_<ubicación>_<AAAA-MM-DD>.csv` (ubicación "todas" si se exportan todas).
+- Ubicación: una en particular o "Todas las ubicaciones" (las 12 con stock).
+- El reporte de alertas incluye todas, abiertas y cerradas, con su estado: sirve para auditar.
+- Columnas:
+  - **Stock:** ubicación, nombre de la ubicación, código interno, EAN-13, producto, categoría, stock, stock mínimo, estado.
+  - **Movimientos:** ID, fecha, ubicación, código interno, producto, tipo, cantidad, stock antes, stock después, operador, motivo, observación.
+  - **Alertas:** ID, fecha, ubicación, código interno, producto, tipo, nivel, diferencia, estado, declarada por, observación.
+- Los encabezados y valores del archivo se escriben en español dentro del generador del CSV (`domain/ReporteCsv`). Son el formato del archivo, no textos de pantalla.
 - El texto del mockup "El archivo se guarda en la carpeta Descargas del teléfono" se reemplaza por "Elige dónde guardar el archivo, por ejemplo, Descargas".
 
 ## Formularios y validaciones

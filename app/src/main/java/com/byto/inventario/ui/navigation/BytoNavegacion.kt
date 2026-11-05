@@ -33,6 +33,7 @@ import com.byto.inventario.ui.screens.buscar.PantallaBuscarCodigo
 import com.byto.inventario.ui.screens.detalle.PantallaDetalleProducto
 import com.byto.inventario.ui.screens.enconstruccion.PantallaEnConstruccion
 import com.byto.inventario.ui.screens.escaner.PantallaEscanearCodigo
+import com.byto.inventario.ui.screens.exportar.PantallaExportarReporte
 import com.byto.inventario.ui.screens.historial.PantallaHistorial
 import com.byto.inventario.ui.screens.inicio.PantallaInicioEncargado
 import com.byto.inventario.ui.screens.inicio.PantallaInicioGerente
@@ -112,6 +113,8 @@ fun BytoNavegacion(
                                 if (ubicacion != null && usuario != null) "${ubicacion?.id} · ${usuario?.id}" else null
                             // Alertas e Historial abarcan todas las ubicaciones del usuario: mientras cargan, su ID.
                             Pantalla.ALERTAS, Pantalla.HISTORIAL -> usuario?.id
+                            // Quién exporta (como en el mockup: "GE-001").
+                            Pantalla.EXPORTAR_REPORTE -> usuario?.id
                             // Quién declara y desde dónde: "EB-001 · Bodega Regional Santiago".
                             Pantalla.DECLARAR_REPOSICION ->
                                 if (ubicacion != null && usuario != null) "${usuario?.id} · ${ubicacion?.nombre}" else null
@@ -289,6 +292,9 @@ fun BytoNavegacion(
                     alSinSesion = irALogin
                 )
             }
+            composable(Pantalla.EXPORTAR_REPORTE.ruta) {
+                PantallaExportarReporte(alSinConexion = irASinConexion, alSinSesion = irALogin)
+            }
             composable(Pantalla.DECLARAR_REPOSICION.ruta) {
                 PantallaDeclararReposicion(alSinConexion = irASinConexion, alSinSesion = irALogin)
             }
@@ -324,7 +330,8 @@ private val implementadas = setOf(
     Pantalla.ALERTAS,
     Pantalla.DECLARAR_REPOSICION,
     Pantalla.HISTORIAL,
-    Pantalla.ADMINISTRAR_UBICACIONES
+    Pantalla.ADMINISTRAR_UBICACIONES,
+    Pantalla.EXPORTAR_REPORTE
 )
 
 /** Navega a [pantalla] borrando toda la pila, para que "atrás" no regrese a lo anterior. */

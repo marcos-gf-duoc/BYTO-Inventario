@@ -6,6 +6,7 @@ import com.byto.inventario.data.local.LocalInventarioRepository
 import com.byto.inventario.data.repository.InventarioRepository
 import com.byto.inventario.data.repository.SesionRepository
 import com.byto.inventario.data.repository.SimuladorConexion
+import com.byto.inventario.dispositivo.EscritorArchivos
 import com.byto.inventario.dispositivo.Vibrador
 
 /**
@@ -33,4 +34,6 @@ class AppContainer(context: Context) {
     val sesionRepository = SesionRepository()
 
     val vibrador = Vibrador(context)
+
+    val escritorArchivos = EscritorArchivos(context)
 }
