@@ -1,6 +1,11 @@
 package com.byto.inventario.ui.navigation
 
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -143,7 +148,14 @@ fun BytoNavegacion(
         NavHost(
             navController = navController,
             startDestination = Pantalla.LOGIN.ruta,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            // Transiciones entre pantallas: al avanzar, la nueva entra desde la derecha;
+            // al volver ("pop"), la anterior regresa desde la izquierda. Así se entiende
+            // hacia dónde se movió la persona. Son cortas para no hacer esperar.
+            enterTransition = { fadeIn(tween(DURACION_TRANSICION)) + slideInHorizontally(tween(DURACION_TRANSICION)) { it / 8 } },
+            exitTransition = { fadeOut(tween(DURACION_TRANSICION)) + slideOutHorizontally(tween(DURACION_TRANSICION)) { -it / 8 } },
+            popEnterTransition = { fadeIn(tween(DURACION_TRANSICION)) + slideInHorizontally(tween(DURACION_TRANSICION)) { -it / 8 } },
+            popExitTransition = { fadeOut(tween(DURACION_TRANSICION)) + slideOutHorizontally(tween(DURACION_TRANSICION)) { it / 8 } }
         ) {
             composable(Pantalla.LOGIN.ruta) {
                 PantallaLogin(
@@ -312,6 +324,9 @@ fun BytoNavegacion(
         }
     }
 }
+
+/** Duración de las transiciones entre pantallas, en milisegundos. */
+private const val DURACION_TRANSICION = 250
 
 /** Pantallas que ya tienen su versión real (las demás muestran "En construcción"). */
 private val implementadas = setOf(

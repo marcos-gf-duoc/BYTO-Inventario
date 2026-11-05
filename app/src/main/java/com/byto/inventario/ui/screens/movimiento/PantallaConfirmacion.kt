@@ -1,5 +1,8 @@
 package com.byto.inventario.ui.screens.movimiento
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,8 +29,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -144,6 +149,12 @@ private fun ContenidoConfirmacion(
 /** Círculo verde con ✓ (decorativo) y el título, que es lo que lee TalkBack. */
 @Composable
 private fun Encabezado() {
+    // Al llegar a P10 el círculo con el ✓ "aparece" creciendo con un pequeño rebote:
+    // confirma que el registro terminó bien. Animatable guarda el valor y lo anima una vez.
+    val escala = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        escala.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
+    }
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -153,6 +164,11 @@ private fun Encabezado() {
             modifier = Modifier
                 .padding(top = 16.dp)
                 .size(88.dp)
+                // graphicsLayer escala solo el dibujo: el espacio que ocupa no cambia y nada salta.
+                .graphicsLayer {
+                    scaleX = escala.value
+                    scaleY = escala.value
+                }
                 .background(EstadoNormalTexto, CircleShape),
             contentAlignment = Alignment.Center
         ) {

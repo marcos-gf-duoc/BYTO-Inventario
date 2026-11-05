@@ -1,5 +1,11 @@
 package com.byto.inventario.ui.screens.buscar
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -190,24 +196,52 @@ private fun ContenidoBuscarCodigo(
             Text(stringResource(R.string.buscar_escanear), style = MaterialTheme.typography.titleMedium)
         }
 
-        when {
-            estado.buscando -> IndicadorCarga()
-            estado.noEncontrado -> Text(
-                text = stringResource(R.string.buscar_no_encontrado),
-                style = MaterialTheme.typography.bodyLarge
-            )
-            estado.falloCarga -> Text(
-                text = stringResource(R.string.error_carga),
-                color = MaterialTheme.colorScheme.error
-            )
-            estado.resultado != null -> Resultado(
-                detalle = estado.resultado,
-                puedeRegistrar = estado.puedeRegistrar,
-                alVerDetalle = { alVerDetalle(estado.resultado.producto.codigoInterno) },
-                alRegistrar = { alRegistrar(estado.resultado.producto.codigoInterno) }
-            )
+        val vista = when {
+            estado.buscando -> VistaResultado.Buscando
+            estado.noEncontrado -> VistaResultado.NoEncontrado
+            estado.falloCarga -> VistaResultado.Fallo
+            estado.resultado != null -> VistaResultado.Encontrado(estado.resultado, estado.puedeRegistrar)
+            else -> VistaResultado.Nada
+        }
+        // Cambio animado entre "buscando", el resultado y los avisos: lo nuevo aparece con un
+        // fundido y un leve desplazamiento hacia arriba; lo anterior se desvanece.
+        // Cada contenido se dibuja con los datos de su propia "vista", así el que sale no se rompe.
+        AnimatedContent(
+            targetState = vista,
+            transitionSpec = {
+                (fadeIn(tween(220)) + slideInVertically(tween(220)) { it / 6 }) togetherWith fadeOut(tween(150))
+            },
+            label = "resultadoBusqueda"
+        ) { actual ->
+            when (actual) {
+                VistaResultado.Buscando -> IndicadorCarga()
+                VistaResultado.NoEncontrado -> Text(
+                    text = stringResource(R.string.buscar_no_encontrado),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                VistaResultado.Fallo -> Text(
+                    text = stringResource(R.string.error_carga),
+                    color = MaterialTheme.colorScheme.error
+                )
+                is VistaResultado.Encontrado -> Resultado(
+                    detalle = actual.detalle,
+                    puedeRegistrar = actual.puedeRegistrar,
+                    alVerDetalle = { alVerDetalle(actual.detalle.producto.codigoInterno) },
+                    alRegistrar = { alRegistrar(actual.detalle.producto.codigoInterno) }
+                )
+                VistaResultado.Nada -> Spacer(Modifier.height(0.dp))
+            }
         }
     }
+}
+
+/** Qué se muestra bajo los botones de P08. Guarda sus propios datos para poder animarse al salir. */
+private sealed interface VistaResultado {
+    data object Nada : VistaResultado
+    data object Buscando : VistaResultado
+    data object NoEncontrado : VistaResultado
+    data object Fallo : VistaResultado
+    data class Encontrado(val detalle: ExistenciaDetalle, val puedeRegistrar: Boolean) : VistaResultado
 }
 
 /** Tarjeta del producto encontrado y sus acciones. "Registrar" solo si el perfil lo permite. */

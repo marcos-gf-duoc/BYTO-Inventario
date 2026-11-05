@@ -1,5 +1,12 @@
 package com.byto.inventario.ui.screens.movimiento
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -420,37 +427,72 @@ private fun CampoObservacion(estado: EstadoRegistro, alCambiar: (String) -> Unit
 @Composable
 private fun TarjetaStockResultante(antes: Int, despues: Int?, estadoDespues: EstadoStock?) {
     val colores = estadoDespues?.let { coloresDe(it) }
+    // Al cambiar el estado (por ejemplo, de Normal a Bajo) el color pasa de uno a otro
+    // suavemente en vez de saltar: se nota que el cambio es consecuencia de la cantidad.
+    val fondo by animateColorAsState(
+        targetValue = colores?.fondo ?: MaterialTheme.colorScheme.surfaceContainerHigh,
+        label = "fondoStockResultante"
+    )
+    val contenido by animateColorAsState(
+        targetValue = colores?.texto ?: MaterialTheme.colorScheme.onSurface,
+        label = "textoStockResultante"
+    )
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .semantics(mergeDescendants = true) {},
-        colors = CardDefaults.cardColors(
-            containerColor = colores?.fondo ?: MaterialTheme.colorScheme.surfaceContainerHigh,
-            contentColor = colores?.texto ?: MaterialTheme.colorScheme.onSurface
-        )
+        colors = CardDefaults.cardColors(containerColor = fondo, contentColor = contenido)
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.registrar_stock_resultante), style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    text = "$antes → ${despues ?: "—"}",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            if (estadoDespues != null && colores != null) {
-                // Píldora blanca (como en el mockup): un chip del mismo color que la tarjeta no se vería.
-                // En "Sin stock" el texto del estado es blanco, así que se usa el color oscuro del fondo.
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
-                    contentColor = if (estadoDespues == EstadoStock.SIN_STOCK) colores.fondo else colores.texto
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = stringResource(estadoDespues.textoRes()),
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        text = "$antes → ",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
                     )
+                    // El número nuevo entra desde abajo si sube y desde arriba si baja,
+                    // como un contador: refuerza hacia dónde va el stock.
+                    AnimatedContent(
+                        targetState = despues,
+                        transitionSpec = {
+                            val sube = (targetState ?: 0) > (initialState ?: 0)
+                            val direccion = if (sube) 1 else -1
+                            (slideInVertically { alto -> alto * direccion } + fadeIn()) togetherWith
+                                (slideOutVertically { alto -> -alto * direccion } + fadeOut())
+                        },
+                        label = "numeroStockResultante"
+                    ) { valor ->
+                        Text(
+                            text = valor?.toString() ?: "—",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+            // La etiqueta del estado cambia con un fundido (y desaparece si la cantidad no es válida).
+            AnimatedContent(
+                targetState = estadoDespues,
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = "estadoStockResultante"
+            ) { estado ->
+                if (estado != null) {
+                    val coloresEstado = coloresDe(estado)
+                    // Píldora blanca (como en el mockup): un chip del mismo color que la tarjeta no se vería.
+                    // En "Sin stock" el texto del estado es blanco, así que se usa el color oscuro del fondo.
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        contentColor = if (estado == EstadoStock.SIN_STOCK) coloresEstado.fondo else coloresEstado.texto
+                    ) {
+                        Text(
+                            text = stringResource(estado.textoRes()),
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
                 }
             }
         }
