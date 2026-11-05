@@ -20,6 +20,7 @@ import com.byto.inventario.data.model.Ubicacion
 import com.byto.inventario.data.model.Usuario
 import com.byto.inventario.data.repository.InventarioRepository
 import com.byto.inventario.data.repository.ReglaNegocioException
+import com.byto.inventario.data.repository.SimuladorConexion
 import com.byto.inventario.data.repository.SinConexionException
 import com.byto.inventario.domain.ReglasInventario
 import kotlinx.coroutines.delay
@@ -32,11 +33,14 @@ import java.util.Locale
  * Implementación en memoria que imita al futuro backend.
  * Parte de una copia de [DatosSinteticos]; los cambios se pierden al cerrar la app.
  *
+ * En E2 la app usa LocalInventarioRepository (Room). Esta clase se conserva para las
+ * pruebas unitarias, que corren sin Android y necesitan datos limpios en cada prueba.
+ *
  * @param retardoMs espera simulada de cada llamada, como si fuera por la red.
  */
 class FakeInventarioRepository(
     private val retardoMs: Long = 300
-) : InventarioRepository {
+) : InventarioRepository, SimuladorConexion {
 
     /**
      * Interruptor oculto para demostrar el estado "sin conexión".
@@ -44,7 +48,7 @@ class FakeInventarioRepository(
      * así todas ven siempre el valor más reciente.
      */
     @Volatile
-    var sinConexion: Boolean = false
+    override var sinConexion: Boolean = false
 
     // Copias modificables de los datos iniciales.
     private val usuarios = DatosSinteticos.usuarios
@@ -216,8 +220,15 @@ class FakeInventarioRepository(
     override suspend fun declararReposicion(
         ubicacionId: String,
         codigoInterno: String,
-        declaradaPor: String
+        declaradaPor: String,
+        observacion: String?
     ): Alerta = llamada {
+        if (observacion != null && observacion.length > ReglasInventario.MAX_CARACTERES_OBSERVACION) {
+            throw ReglaNegocioException(
+                "OBSERVACION_MUY_LARGA",
+                "La observación supera ${ReglasInventario.MAX_CARACTERES_OBSERVACION} caracteres."
+            )
+        }
         val ubicacion = buscarUbicacion(ubicacionId)
         // La reposición se cierra con una entrada en la tienda, así que solo aplica a tiendas.
         if (ubicacion.tipo != TipoUbicacion.TIENDA) {
@@ -240,7 +251,8 @@ class FakeInventarioRepository(
             codigoInterno = codigoInterno,
             estado = EstadoAlerta.ABIERTA,
             fechaUtc = Instant.now(),
-            declaradaPorId = declaradaPor
+            declaradaPorId = declaradaPor,
+            observacion = observacion?.trim()?.ifEmpty { null }
         )
         alertas.add(alerta)
         alerta

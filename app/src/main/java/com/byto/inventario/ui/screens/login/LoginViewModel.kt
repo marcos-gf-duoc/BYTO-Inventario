@@ -2,10 +2,10 @@ package com.byto.inventario.ui.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.byto.inventario.data.fake.FakeInventarioRepository
 import com.byto.inventario.data.model.Usuario
 import com.byto.inventario.data.repository.InventarioRepository
 import com.byto.inventario.data.repository.SesionRepository
+import com.byto.inventario.data.repository.SimuladorConexion
 import com.byto.inventario.data.repository.SinConexionException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,13 +27,13 @@ data class EstadoLogin(
 )
 
 /**
- * @param simulador solo para la demo de E1: permite cortar la conexión simulada con el
- * interruptor oculto. En E2, con el repositorio remoto, este parámetro desaparece.
+ * @param simulador solo para la demo: permite cortar la conexión simulada con el
+ * interruptor oculto. Con el futuro repositorio remoto, este parámetro desaparece.
  */
 class LoginViewModel(
     private val repositorio: InventarioRepository,
     private val sesionRepository: SesionRepository,
-    private val simulador: FakeInventarioRepository
+    private val simulador: SimuladorConexion
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(

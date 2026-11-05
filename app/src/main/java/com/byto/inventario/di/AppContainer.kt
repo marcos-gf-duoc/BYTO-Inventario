@@ -1,22 +1,32 @@
 package com.byto.inventario.di
 
-import com.byto.inventario.data.fake.FakeInventarioRepository
+import android.content.Context
+import com.byto.inventario.data.local.BytoDatabase
+import com.byto.inventario.data.local.LocalInventarioRepository
 import com.byto.inventario.data.repository.InventarioRepository
 import com.byto.inventario.data.repository.SesionRepository
+import com.byto.inventario.data.repository.SimuladorConexion
 
 /**
  * Crea a mano las dependencias de la app, una sola vez (inyección manual, sin Hilt ni Koin).
  * Los ViewModels las reciben desde aquí en vez de crearlas ellos mismos.
  *
- * En E2 bastará con cambiar la línea de [inventarioRepository] por el repositorio remoto.
+ * Para cambiar el origen de los datos (por ejemplo, al futuro repositorio remoto)
+ * basta con cambiar la línea de [repositorioLocal]: los ViewModels no se enteran.
+ *
+ * @param context la Application; Room lo necesita para ubicar el archivo de la base.
  */
-class AppContainer {
+class AppContainer(context: Context) {
 
-    /** Se guarda con su tipo concreto solo para poder usar el interruptor "sin conexión". */
-    val repositorioFalso = FakeInventarioRepository()
+    private val baseDatos = BytoDatabase.crear(context)
+
+    private val repositorioLocal = LocalInventarioRepository(baseDatos)
 
     /** Lo que deben usar los ViewModels: la interfaz, no la implementación. */
-    val inventarioRepository: InventarioRepository = repositorioFalso
+    val inventarioRepository: InventarioRepository = repositorioLocal
+
+    /** El mismo repositorio, visto solo como interruptor "sin conexión" (P01 y P16). */
+    val simuladorConexion: SimuladorConexion = repositorioLocal
 
     val sesionRepository = SesionRepository()
 }

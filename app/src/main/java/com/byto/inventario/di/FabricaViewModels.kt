@@ -32,13 +32,13 @@ object FabricaViewModels {
         initializer { SesionViewModel(contenedor().sesionRepository) }
         initializer {
             val c = contenedor()
-            LoginViewModel(c.inventarioRepository, c.sesionRepository, c.repositorioFalso)
+            LoginViewModel(c.inventarioRepository, c.sesionRepository, c.simuladorConexion)
         }
         initializer {
             val c = contenedor()
             SeleccionUbicacionViewModel(c.inventarioRepository, c.sesionRepository)
         }
-        initializer { SinConexionViewModel(contenedor().repositorioFalso) }
+        initializer { SinConexionViewModel(contenedor().simuladorConexion) }
         initializer {
             val c = contenedor()
             InicioOperadorViewModel(c.inventarioRepository, c.sesionRepository)

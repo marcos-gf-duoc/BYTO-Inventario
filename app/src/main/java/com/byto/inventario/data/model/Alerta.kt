@@ -10,6 +10,7 @@ import java.time.Instant
  * @param movimientoId movimiento que originó la alerta; null si vino de la carga inicial
  * o fue declarada a mano (REPOSICION).
  * @param declaradaPorId solo REPOSICION: ID del Encargado que la declaró.
+ * @param observacion solo REPOSICION: nota opcional del Encargado (máximo 200 caracteres).
  * @param fechaUtc cuándo se abrió, en UTC.
  */
 data class Alerta(
@@ -22,5 +23,6 @@ data class Alerta(
     val nivel: EstadoStock? = null,
     val diferencia: Int? = null,
     val movimientoId: String? = null,
-    val declaradaPorId: String? = null
+    val declaradaPorId: String? = null,
+    val observacion: String? = null
 )

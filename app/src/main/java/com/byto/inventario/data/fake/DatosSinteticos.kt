@@ -18,8 +18,9 @@ import java.time.Instant
  * Datos ficticios iniciales de BYTO, copiados de docs/decisiones_E1.md.
  * Si cambias algo aquí, cambia primero el documento: el documento manda.
  *
- * Es un `object` (una única instancia) porque son constantes de solo lectura;
- * el FakeInventarioRepository copia estas listas y trabaja sobre sus copias.
+ * Es un `object` (una única instancia) porque son constantes de solo lectura.
+ * LocalInventarioRepository las guarda en Room en el primer arranque, y
+ * FakeInventarioRepository (pruebas) copia estas listas y trabaja sobre sus copias.
  */
 object DatosSinteticos {
 

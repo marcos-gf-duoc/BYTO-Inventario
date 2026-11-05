@@ -5,8 +5,8 @@ import com.byto.inventario.di.AppContainer
 
 /**
  * Clase Application: Android la crea una vez, antes que cualquier pantalla, y vive
- * mientras viva la app. Por eso es el lugar del AppContainer: los datos en memoria
- * sobreviven a rotaciones de pantalla y cambios entre Activities.
+ * mientras viva la app. Por eso es el lugar del AppContainer: la base de datos se abre
+ * una sola vez y la sesión sobrevive a rotaciones de pantalla y cambios entre Activities.
  */
 class BytoApp : Application() {
 
@@ -16,6 +16,6 @@ class BytoApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        container = AppContainer()
+        container = AppContainer(this)
     }
 }

@@ -18,10 +18,11 @@ import com.byto.inventario.data.model.Usuario
  * Contrato entre los ViewModels y el origen de los datos. Una función por endpoint
  * de docs/arquitectura_API.md (el número de cada una es el del endpoint).
  *
- * E1: lo implementa FakeInventarioRepository (memoria).
- * E2: lo implementará RemoteInventarioRepository (HTTP), sin cambiar los ViewModels.
+ * E2: lo implementa LocalInventarioRepository (Room); FakeInventarioRepository (memoria)
+ * queda para las pruebas. Más adelante lo implementará RemoteInventarioRepository (HTTP),
+ * sin cambiar los ViewModels.
  *
- * Todas son `suspend` porque en E2 serán llamadas de red que tardan.
+ * Todas son `suspend` porque leen la base de datos y, en el futuro, la red: tardan.
  * Todas pueden lanzar [SinConexionException] o [ReglaNegocioException].
  */
 interface InventarioRepository {
@@ -68,11 +69,15 @@ interface InventarioRepository {
         estado: EstadoAlerta? = null
     ): List<Alerta>
 
-    /** 10. POST /alertas/reposicion — el Encargado declara una reposición en una tienda. */
+    /**
+     * 10. POST /alertas/reposicion — el Encargado declara una reposición en una tienda.
+     * @param observacion nota opcional, máximo 200 caracteres.
+     */
     suspend fun declararReposicion(
         ubicacionId: String,
         codigoInterno: String,
-        declaradaPor: String
+        declaradaPor: String,
+        observacion: String? = null
     ): Alerta
 
     /** 11. PATCH /alertas/{id} — marca un descalce como revisado. */

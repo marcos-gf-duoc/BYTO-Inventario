@@ -1,8 +1,9 @@
 package com.byto.inventario.data.repository
 
 /**
- * No se pudo hablar con el servidor. En E1 la lanza el repositorio falso cuando se
- * activa su interruptor "sin conexión"; en E2 la lanzará el remoto ante un fallo de red.
+ * No se pudo hablar con el servidor. En E2 la lanza el repositorio local cuando se
+ * activa el interruptor "sin conexión" ([SimuladorConexion]); con el futuro repositorio
+ * remoto la lanzará un fallo de red real.
  */
 class SinConexionException : Exception("Sin conexión con el servidor")
 
