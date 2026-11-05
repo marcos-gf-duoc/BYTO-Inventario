@@ -18,6 +18,7 @@ import com.byto.inventario.ui.screens.inventario.InventarioViewModel
 import com.byto.inventario.ui.screens.login.LoginViewModel
 import com.byto.inventario.ui.screens.movimiento.ConfirmacionViewModel
 import com.byto.inventario.ui.screens.movimiento.RegistrarMovimientoViewModel
+import com.byto.inventario.ui.screens.reposicion.DeclararReposicionViewModel
 import com.byto.inventario.ui.screens.seleccion.SeleccionUbicacionViewModel
 import com.byto.inventario.ui.screens.sinconexion.SinConexionViewModel
 
@@ -70,6 +71,10 @@ object FabricaViewModels {
         initializer {
             val c = contenedor()
             AlertasViewModel(c.inventarioRepository, c.sesionRepository)
+        }
+        initializer {
+            val c = contenedor()
+            DeclararReposicionViewModel(c.inventarioRepository, c.sesionRepository)
         }
         initializer {
             val c = contenedor()

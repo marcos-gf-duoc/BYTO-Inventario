@@ -40,6 +40,7 @@ import com.byto.inventario.ui.screens.inventario.PantallaInventario
 import com.byto.inventario.ui.screens.login.PantallaLogin
 import com.byto.inventario.ui.screens.movimiento.PantallaConfirmacion
 import com.byto.inventario.ui.screens.movimiento.PantallaRegistrarMovimiento
+import com.byto.inventario.ui.screens.reposicion.PantallaDeclararReposicion
 import com.byto.inventario.ui.screens.seleccion.PantallaSeleccionUbicacion
 import com.byto.inventario.ui.screens.sinconexion.PantallaSinConexion
 
@@ -109,6 +110,9 @@ fun BytoNavegacion(
                                 if (ubicacion != null && usuario != null) "${ubicacion?.id} · ${usuario?.id}" else null
                             // Alertas abarca todas las ubicaciones del usuario: mientras carga, su ID.
                             Pantalla.ALERTAS -> usuario?.id
+                            // Quién declara y desde dónde: "EB-001 · Bodega Regional Santiago".
+                            Pantalla.DECLARAR_REPOSICION ->
+                                if (ubicacion != null && usuario != null) "${usuario?.id} · ${ubicacion?.nombre}" else null
                             else -> ubicacion?.let { "${it.id} · ${it.nombre}" }
                         },
                     alCambiarUbicacion = { navController.navigate(Pantalla.SELECCION_UBICACION.ruta) },
@@ -269,6 +273,9 @@ fun BytoNavegacion(
                     alSinSesion = irALogin
                 )
             }
+            composable(Pantalla.DECLARAR_REPOSICION.ruta) {
+                PantallaDeclararReposicion(alSinConexion = irASinConexion, alSinSesion = irALogin)
+            }
             composable(Pantalla.SIN_CONEXION.ruta) {
                 // popBackStack vuelve a la pantalla que falló, y esta repite su carga.
                 PantallaSinConexion(alReintentar = { navController.popBackStack() })
@@ -298,7 +305,8 @@ private val implementadas = setOf(
     Pantalla.ESCANEAR_CODIGO,
     Pantalla.REGISTRAR_MOVIMIENTO,
     Pantalla.CONFIRMACION_MOVIMIENTO,
-    Pantalla.ALERTAS
+    Pantalla.ALERTAS,
+    Pantalla.DECLARAR_REPOSICION
 )
 
 /** Navega a [pantalla] borrando toda la pila, para que "atrás" no regrese a lo anterior. */
@@ -314,7 +322,8 @@ private fun seccionDe(pantalla: Pantalla?): SeccionInferior? = when (pantalla) {
     // Detalle y búsqueda trabajan sobre el inventario, así que mantienen esa sección resaltada.
     Pantalla.INVENTARIO, Pantalla.DETALLE_PRODUCTO, Pantalla.BUSCAR_CODIGO, Pantalla.ESCANEAR_CODIGO,
     Pantalla.CONFIRMACION_MOVIMIENTO -> SeccionInferior.INVENTARIO
-    Pantalla.ALERTAS -> SeccionInferior.ALERTAS
+    // Declarar una reposición crea una alerta, así que se resalta esa sección (como en el mockup).
+    Pantalla.ALERTAS, Pantalla.DECLARAR_REPOSICION -> SeccionInferior.ALERTAS
     Pantalla.HISTORIAL -> SeccionInferior.HISTORIAL
     else -> null
 }

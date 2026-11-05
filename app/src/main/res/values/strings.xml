@@ -194,6 +194,25 @@
     <string name="alertas_vacio">No hay alertas abiertas en tus ubicaciones.</string>
     <string name="alertas_vacio_filtro">No hay alertas abiertas de este tipo.</string>
 
+    <!-- P12 Declarar reposición -->
+    <string name="reposicion_tienda">Tienda</string>
+    <string name="reposicion_tienda_elegir">Elige una tienda</string>
+    <string name="reposicion_tienda_opcion">%1$s · %2$s</string>
+    <string name="reposicion_producto">Producto</string>
+    <string name="reposicion_producto_elegir">Elige un producto</string>
+    <string name="reposicion_producto_elegir_tienda">Primero elige una tienda</string>
+    <string name="reposicion_producto_detalle">%1$s · %2$d u</string>
+    <string name="reposicion_observacion">Observación (opcional)</string>
+    <string name="reposicion_aviso">El operario de la tienda recibirá la notificación en su pantalla de inicio.</string>
+    <string name="reposicion_boton">Declarar reposición</string>
+    <string name="reposicion_declarada">Reposición declarada: %1$s en %2$s.</string>
+    <string name="reposicion_error_tienda">Elige la tienda que necesita la reposición.</string>
+    <string name="reposicion_error_producto">Elige el producto que se debe reponer.</string>
+    <string name="reposicion_error_ya_abierta">Ya hay una reposición abierta de este producto en esta tienda.</string>
+    <string name="reposicion_error_envio">No se pudo declarar la reposición. Intenta de nuevo.</string>
+    <string name="reposicion_sin_tiendas">No tienes tiendas activas a cargo.</string>
+    <string name="cd_abrir_lista">Abrir la lista</string>
+
     <!-- P09 Registrar movimiento -->
     <string name="registrar_codigos">%1$s · EAN %2$s</string>
     <string name="registrar_stock_actual">Stock actual: %1$d</string>
