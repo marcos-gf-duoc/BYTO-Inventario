@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 /** Datos de un acceso: qué dice, qué ícono lleva y qué hace al tocarlo. */
-data class Acceso(val texto: String, @DrawableRes val icono: Int, val alTocar: () -> Unit)
+data class Acceso(val texto: String, @param:DrawableRes val icono: Int, val alTocar: () -> Unit)
 
 /**
  * Botón grande de acceso rápido: tarjeta blanca con ícono morado y texto oscuro

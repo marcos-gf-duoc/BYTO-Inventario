@@ -180,6 +180,7 @@ Sin marcas. Ropa en talla única M (las tallas como variantes quedan fuera de E2
 - Los usuarios simulados siguen definidos en el código (son fijos y no se editan).
 - La sesión (usuario y ubicación activa) sigue en memoria: al abrir la app se vuelve a elegir usuario.
 - Para volver a los datos iniciales en una demostración: borrar los datos de la app desde los ajustes de Android.
+- Sin respaldo automático (`allowBackup="false"` y reglas que excluyen todo): el inventario no se copia a la nube ni a otro teléfono (Caso §5.1), y al reinstalar la app vuelve a los datos iniciales.
 
 ## Recursos nativos del dispositivo
 | Recurso | Dónde se usa | Permiso | Comportamiento |

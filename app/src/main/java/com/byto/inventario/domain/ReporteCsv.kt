@@ -33,7 +33,8 @@ data class ErroresExportacion(
 object ReporteCsv {
 
     private const val SEPARADOR = ";"
-    private const val BOM = "﻿"
+    // Se escribe como "\uFEFF" (y no el carácter mismo) porque es invisible en el código.
+    private const val BOM = "\uFEFF"
 
     /** Fin de línea de Windows: es el que espera Excel. */
     private const val FIN_LINEA = "\r\n"

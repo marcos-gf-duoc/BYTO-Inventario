@@ -85,3 +85,4 @@ com.byto.inventario
 - Nada de datos personales reales: ni nombres, ni RUT, ni correos, ni direcciones, ni marcas comerciales reales.
 - Permisos permitidos: solo `CAMERA` (pedido al usarlo, con manejo del rechazo) y `VIBRATE`. No pidas otros (ni ubicación ni almacenamiento: el CSV se guarda con el selector del sistema).
 - No subas al repositorio el material de referencia de `docs/` que está en `.gitignore`.
+- El respaldo automático de Android está desactivado (`allowBackup="false"` y reglas en `res/xml/` que excluyen todo). No lo vuelvas a activar.

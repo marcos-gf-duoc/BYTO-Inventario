@@ -25,7 +25,7 @@ enum class ErrorValidacion {
  */
 object ReglasInventario {
 
-    /** Desde este stock el producto está "Normal" (umbral global de E1). */
+    /** Desde este stock el producto está "Normal" (umbral global, igual para todos los productos). */
     const val UMBRAL_NORMAL = 10
 
     /** Desde este stock (y bajo UMBRAL_NORMAL) el producto está "Bajo"; por debajo, "Crítico". */

@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import com.byto.inventario.R
 
 /** Las 4 secciones de la barra inferior. */
-enum class SeccionInferior(@StringRes val texto: Int, @DrawableRes val icono: Int) {
+enum class SeccionInferior(@param:StringRes val texto: Int, @param:DrawableRes val icono: Int) {
     INICIO(R.string.seccion_inicio, R.drawable.ic_inicio),
     INVENTARIO(R.string.seccion_inventario, R.drawable.ic_inventario),
     ALERTAS(R.string.seccion_alertas, R.drawable.ic_alertas),

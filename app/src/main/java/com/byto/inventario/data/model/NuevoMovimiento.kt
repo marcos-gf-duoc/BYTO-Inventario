@@ -6,8 +6,9 @@ import java.time.Instant
  * Lo que la app envía para registrar un movimiento (cuerpo de POST /movimientos).
  * No trae id, fecha ni stock antes/después: eso lo asigna el servidor.
  *
- * @param operadorId en E1 lo pone la app desde la sesión. En E2 el servidor lo tomará
- * de la sesión o del token, y este campo desaparecerá (ver docs/arquitectura_API.md).
+ * @param operadorId mientras no haya servidor lo pone la app desde la sesión. Con el futuro
+ * backend, el servidor lo tomará de la sesión o del token, y este campo desaparecerá
+ * (ver docs/arquitectura_API.md).
  */
 data class NuevoMovimiento(
     val tipo: TipoMovimiento,

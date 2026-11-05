@@ -36,7 +36,6 @@ import com.byto.inventario.ui.components.SeccionInferior
 import com.byto.inventario.ui.screens.alertas.PantallaAlertas
 import com.byto.inventario.ui.screens.buscar.PantallaBuscarCodigo
 import com.byto.inventario.ui.screens.detalle.PantallaDetalleProducto
-import com.byto.inventario.ui.screens.enconstruccion.PantallaEnConstruccion
 import com.byto.inventario.ui.screens.escaner.PantallaEscanearCodigo
 import com.byto.inventario.ui.screens.exportar.PantallaExportarReporte
 import com.byto.inventario.ui.screens.historial.PantallaHistorial
@@ -314,40 +313,12 @@ fun BytoNavegacion(
                 // popBackStack vuelve a la pantalla que falló, y esta repite su carga.
                 PantallaSinConexion(alReintentar = { navController.popBackStack() })
             }
-
-            // Las demás aún muestran el marcador "En construcción".
-            Pantalla.entries
-                .filter { it !in implementadas }
-                .forEach { pantalla ->
-                    composable(pantalla.patron) { PantallaEnConstruccion(pantalla) }
-                }
         }
     }
 }
 
 /** Duración de las transiciones entre pantallas, en milisegundos. */
 private const val DURACION_TRANSICION = 250
-
-/** Pantallas que ya tienen su versión real (las demás muestran "En construcción"). */
-private val implementadas = setOf(
-    Pantalla.LOGIN,
-    Pantalla.SELECCION_UBICACION,
-    Pantalla.SIN_CONEXION,
-    Pantalla.INICIO_OPERADOR,
-    Pantalla.INICIO_ENCARGADO,
-    Pantalla.INICIO_GERENTE,
-    Pantalla.INVENTARIO,
-    Pantalla.DETALLE_PRODUCTO,
-    Pantalla.BUSCAR_CODIGO,
-    Pantalla.ESCANEAR_CODIGO,
-    Pantalla.REGISTRAR_MOVIMIENTO,
-    Pantalla.CONFIRMACION_MOVIMIENTO,
-    Pantalla.ALERTAS,
-    Pantalla.DECLARAR_REPOSICION,
-    Pantalla.HISTORIAL,
-    Pantalla.ADMINISTRAR_UBICACIONES,
-    Pantalla.EXPORTAR_REPORTE
-)
 
 /** Navega a [pantalla] borrando toda la pila, para que "atrás" no regrese a lo anterior. */
 private fun NavHostController.navegarLimpiandoPila(pantalla: Pantalla) {

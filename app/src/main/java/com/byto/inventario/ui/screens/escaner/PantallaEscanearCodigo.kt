@@ -63,6 +63,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview as VistaPrevia
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -74,6 +75,7 @@ import com.byto.inventario.R
 import com.byto.inventario.di.FabricaViewModels
 import com.byto.inventario.ui.theme.BYTOTheme
 import java.util.concurrent.Executors
+import kotlin.math.roundToInt
 
 /**
  * P17 Escanear código. [alLeerCodigo] recibe el EAN-13 leído (P08 lo busca);
@@ -308,9 +310,12 @@ private fun MarcoGuia(modifier: Modifier = Modifier) {
             .border(3.dp, Color.White, RoundedCornerShape(16.dp))
             .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
+        // offset con lambda: el avance se lee al ubicar la línea, no al recomponer. Así la
+        // animación (que cambia en cada cuadro) no obliga a redibujar todo el marco.
+        val recorrido = maxHeight - 3.dp
         Box(
             modifier = Modifier
-                .offset(y = (maxHeight - 3.dp) * avance)
+                .offset { IntOffset(0, (recorrido.toPx() * avance).roundToInt()) }
                 .fillMaxWidth()
                 .height(3.dp)
                 .background(MaterialTheme.colorScheme.inversePrimary)

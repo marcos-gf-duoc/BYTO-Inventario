@@ -18,7 +18,7 @@ import com.byto.inventario.data.model.Perfil
 enum class Pantalla(
     val ruta: String,
     val codigo: String,
-    @StringRes val titulo: Int,
+    @param:StringRes val titulo: Int,
     val patron: String = ruta
 ) {
     LOGIN("login", "P01", R.string.titulo_p01),

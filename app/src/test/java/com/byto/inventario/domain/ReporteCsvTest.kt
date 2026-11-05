@@ -14,12 +14,12 @@ class ReporteCsvTest {
     private val nombres = DatosSinteticos.productos.associate { it.codigoInterno to it.nombre }
 
     /** Líneas del CSV sin el BOM inicial ni la línea vacía final. */
-    private fun lineas(csv: String) = csv.removePrefix("﻿").split("\r\n").dropLast(1)
+    private fun lineas(csv: String) = csv.removePrefix("\uFEFF").split("\r\n").dropLast(1)
 
     @Test
     fun empiezaConBomYUsaPuntoYComa() {
         val csv = ReporteCsv.armar(listOf("A", "B"), listOf(listOf("1", "2")))
-        assertTrue(csv.startsWith("﻿"))
+        assertTrue(csv.startsWith("\uFEFF"))
         assertEquals(listOf("A;B", "1;2"), lineas(csv))
     }
 
