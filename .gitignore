@@ -7,6 +7,9 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+# Emulador o teléfono elegido por cada persona en Android Studio (incluye rutas locales).
+# Android Studio lo vuelve a crear solo; versionarlo genera conflictos entre integrantes.
+/.idea/deploymentTargetSelector.xml
 .DS_Store
 /build
 /captures

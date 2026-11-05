@@ -16,7 +16,19 @@ En esta entrega la app funciona sin backend: los datos se guardan en el teléfon
 
 ## Capturas de pantalla
 
-> _Próximamente_
+Tomadas en el emulador con los datos sintéticos; están en [`docs/capturas/`](docs/capturas/).
+
+| Pantalla | Capturas |
+|---|---|
+| P01 Login | [Elegir usuario](docs/capturas/P01_login.png) |
+| P08 Buscar por código | [Resultado](docs/capturas/P08_buscar_resultado.png) · [Error de validación](docs/capturas/P08_buscar_error_validacion.png) |
+| P09 Registrar movimiento | [Stock resultante](docs/capturas/P09_registrar_stock_resultante.png) · [Error de validación](docs/capturas/P09_registrar_error_validacion.png) |
+| P11 Alertas | [Alertas abiertas](docs/capturas/P11_alertas.png) |
+| P12 Declarar reposición | [Campos obligatorios](docs/capturas/P12_reposicion_campos_obligatorios.png) · [Reposición ya abierta](docs/capturas/P12_reposicion_ya_abierta.png) |
+| P13 Historial | [Movimientos](docs/capturas/P13_historial.png) · [Error de rango de fechas](docs/capturas/P13_historial_error_rango.png) |
+| P14 Ubicaciones | [Listado](docs/capturas/P14_ubicaciones.png) · [Confirmar desactivación](docs/capturas/P14_ubicaciones_confirmar.png) |
+| P15 Exportar reporte | [Formulario](docs/capturas/P15_exportar.png) · [Error de validación](docs/capturas/P15_exportar_error_validacion.png) |
+| P17 Escanear código | [Sin permiso de cámara](docs/capturas/P17_escaner_sin_permiso.png) · [Vista de la cámara (emulador)](docs/capturas/P17_escaner_camara_emulador.png) |
 
 ---
 
