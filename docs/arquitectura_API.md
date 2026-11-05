@@ -1,16 +1,24 @@
-# BYTO — Arquitectura y contrato de la API (Etapa c)
+# BYTO — Arquitectura y contrato de la API (Entrega 2)
 
-Etapa (c) confirmada por el estudiante: Navigation Compose aprobado; retardo simulado (~300 ms) e interruptor de "sin conexión" aprobados.
+Confirmado por el estudiante:
+- **Etapa (c)**: Navigation Compose, retardo simulado (~300 ms) e interruptor de "sin conexión".
+- **Entrega 2**: Room para la persistencia local, cámara con CameraX y ML Kit, exportación CSV y vibración.
 
 ## Arquitectura
 - App Android: Kotlin + Jetpack Compose + MVVM, un solo módulo.
 - Capas: `ui` (pantallas y ViewModels) → `data` (repositorios) → origen de datos.
-- Regla central: los ViewModels solo conocen la **interfaz** `InventarioRepository`.
-  - E1: `FakeInventarioRepository` (en memoria, imita al backend, con un retardo simulado de ~300 ms y un interruptor oculto para simular "sin conexión").
-  - E2: `RemoteInventarioRepository` (llamadas HTTP al backend Spring Boot).
-- Reglas de negocio puras en `domain/ReglasInventario` (cálculo de stock resultante, estado del stock, validaciones). En E1 las usan el repositorio falso y la vista previa de "stock resultante"; en E2 el backend es la autoridad y la app las usa solo para la vista previa.
+- Regla central: los ViewModels solo conocen la **interfaz** `InventarioRepository`. Así se puede cambiar el origen de datos sin tocar las pantallas.
+  - E2: `LocalInventarioRepository`, que guarda en Room (base de datos SQLite del teléfono). Conserva el retardo simulado de ~300 ms y el interruptor oculto de "sin conexión", para seguir mostrando P16 como si hubiera servidor.
+  - `FakeInventarioRepository` (en memoria) se conserva para las pruebas unitarias.
+  - Futuro: `RemoteInventarioRepository`, con llamadas HTTP al backend Spring Boot (Caso §3.4).
+- Reglas de negocio puras en `domain/ReglasInventario` (cálculo de stock resultante, estado del stock y validaciones). En E2 las usan el repositorio local y la vista previa de "stock resultante". Cuando exista el backend, él será la autoridad y la app las usará solo para la vista previa.
 - Sesión (usuario y ubicación activa) en memoria, en `SesionRepository`.
-- Dependencias creadas a mano en `AppContainer` (sin Hilt ni Koin).
+- Dependencias creadas a mano en `AppContainer` (sin Hilt ni Koin). `AppContainer` crea la base de datos de Room una sola vez para toda la app.
+- **Recursos nativos** (cámara, archivos y vibración):
+  - Viven fuera de los repositorios de inventario, en `dispositivo/`, para que la lógica no dependa de Android y siga siendo fácil de probar.
+  - La pantalla pide los permisos y abre los selectores del sistema, porque estas APIs necesitan una Activity.
+  - El ViewModel decide qué hacer con el resultado.
+- El texto del CSV lo arma una función pura (`domain/GeneradorCsv`), con pruebas unitarias. Escribirlo en el archivo elegido es tarea de `dispositivo/`.
 
 ## Estructura de paquetes
 ```
@@ -18,48 +26,68 @@ com.byto.inventario
 ├── BytoApp.kt                 (Application: crea el AppContainer)
 ├── MainActivity.kt
 ├── di/AppContainer.kt
-├── domain/ReglasInventario.kt
+├── domain/                    (ReglasInventario, ValidadorEan, Permisos, Fechas, GeneradorCsv: lógica pura)
 ├── data/
 │   ├── model/                 (Ubicacion, Producto, Existencia, Movimiento, Alerta, Usuario, enums)
 │   ├── repository/            (InventarioRepository, SesionRepository)
-│   └── fake/                  (FakeInventarioRepository, DatosSinteticos)
+│   ├── local/                 (Room: BytoDatabase, entidades, DAOs, conversores, LocalInventarioRepository)
+│   └── fake/                  (FakeInventarioRepository para pruebas, DatosSinteticos para la carga inicial)
+├── dispositivo/               (Vibrador, EscritorArchivos: acceso a recursos del teléfono)
 └── ui/
     ├── theme/                 (colores y tipografía accesibles)
     ├── navigation/            (rutas y NavHost)
     ├── components/            (botones, tarjetas, chips de estado reutilizables)
-    └── screens/               (login, seleccion, inicio, inventario, detalle, movimiento, historial, alertas, tablero, ubicaciones)
+    └── screens/               (login, seleccion, inicio, inventario, detalle, buscar, escaner, movimiento,
+                                alertas, reposicion, historial, ubicaciones, exportar, sinconexion)
 ```
 
 ## Librerías
 | Librería | Para qué | Cuándo | Estado |
 |---|---|---|---|
-| Jetpack Compose, Material 3, Lifecycle/ViewModel | Base del proyecto (vienen en la plantilla) | E1 | Incluidas |
-| Navigation Compose | Navegar entre pantallas | E1 | Aprobada |
-| Retrofit + convertidor JSON | Llamar a la API REST | E2 | A decidir en E2 |
-| CameraX + ML Kit | Escáner | Futuro | A decidir |
+| Jetpack Compose, Material 3, Lifecycle/ViewModel | Base del proyecto (vienen en la plantilla) | E2 | Incluidas |
+| Navigation Compose | Navegar entre pantallas | E2 | Aprobada |
+| Room (runtime + ktx + compiler) | Persistencia local en SQLite | E2 | Aprobada |
+| KSP (plugin de Gradle) | Genera el código de Room a partir de las anotaciones | E2 | Aprobada |
+| CameraX (core, camera2, lifecycle, view) | Mostrar la cámara y entregar imágenes al lector | E2 | Aprobada |
+| ML Kit Barcode Scanning (modelo incluido) | Reconocer el EAN-13 en las imágenes, sin conexión | E2 | Aprobada |
+| Retrofit + convertidor JSON | Llamar a la API REST | Futuro | A decidir |
+
+La vibración y el guardado de archivos usan APIs propias de Android (`Vibrator` y "Guardar como" del sistema) y no requieren librerías.
+
+## Permisos de Android
+| Permiso | Para qué | Tipo |
+|---|---|---|
+| `CAMERA` | Escáner de P17 | Se pide al usuario la primera vez que abre el escáner |
+| `VIBRATE` | Vibración al leer un código | Se concede al instalar |
+
+No se piden otros permisos. El CSV se guarda con el selector del sistema, que no necesita permiso de almacenamiento.
 
 ## Convenciones del contrato
 - Base: `/api/v1`. JSON en camelCase. Enums en MAYÚSCULAS.
 - Fechas: ISO-8601 en UTC, por ejemplo `2026-10-16T13:10:00Z`. La hora del movimiento la asigna el servidor, no el teléfono.
 - Errores: `{ "codigo": "STOCK_INSUFICIENTE", "mensaje": "La salida (5) supera el stock actual (3)." }`
 - Códigos HTTP: 200 OK, 201 creado, 400 datos inválidos, 404 no existe, 409 conflicto de regla (por ejemplo, ubicación inactiva).
-- Autenticación: no definida aún. En E1 el login elige un usuario de una lista. En E2 el servidor debe obtener el operador desde la sesión o el token, no desde el cuerpo de la petición.
+- Autenticación: no definida aún. En E2 el login elige un usuario de una lista. Cuando exista el backend, el servidor debe obtener el operador desde la sesión o el token, no desde el cuerpo de la petición.
 
 ## Endpoints
-| # | Método y ruta | Para qué | Perfil | E1 |
+En E2 no hay servidor: cada endpoint corresponde a una función de `InventarioRepository`, que implementa el repositorio local. La columna "E2" indica si la app ya lo usa.
+
+| # | Método y ruta | Para qué | Perfil | E2 |
 |---|---|---|---|---|
 | 1 | `GET /usuarios/demo` | Lista de usuarios ficticios para el login simulado | Todos | Sí |
 | 2 | `GET /ubicaciones?usuarioId=` | Ubicaciones asignadas al usuario (todas si es Gerente) | Todos | Sí |
 | 3 | `PATCH /ubicaciones/{id}` | Habilitar o deshabilitar una ubicación `{ "estado": "ACTIVA" }` | Gerente | Sí |
 | 4 | `GET /ubicaciones/{id}/existencias?q=&estado=` | Inventario de una ubicación con búsqueda y filtro (NORMAL, BAJO, CRITICO, SIN_STOCK) | Operador, Encargado, Gerente | Sí |
 | 5 | `GET /ubicaciones/{id}/existencias/{codigoInterno}` | Detalle de un producto en esa ubicación | Todos | Sí |
-| 6 | `GET /productos/ean/{ean}` | Buscar producto por código de barras | Operador | Sí (búsqueda manual P08; escáner futuro) |
+| 6 | `GET /productos/ean/{ean}` | Buscar producto por código de barras | Operador | Sí (búsqueda manual P08 y escáner P17) |
 | 7 | `POST /movimientos` | Registrar entrada, salida, ajuste o conteo | Operador | Sí |
 | 8 | `GET /movimientos?ubicacionId=&usuarioId=&tipo=&desde=&hasta=` | Historial y auditoría filtrable (Caso §4.1) | Gerente; Operador (propios) | Sí |
 | 9 | `GET /alertas?ubicacionId=&tipo=&estado=` | Alertas abiertas o cerradas | Todos (según asignación) | Sí |
-| 10 | `POST /alertas/reposicion` | Declarar reposición `{ "ubicacionId", "codigoInterno" }` | Encargado | Sí |
+| 10 | `POST /alertas/reposicion` | Declarar reposición `{ "ubicacionId", "codigoInterno", "observacion" }` (observación opcional) | Encargado | Sí |
 | 11 | `PATCH /alertas/{id}` | Marcar descalce como revisado `{ "estado": "REVISADA" }` | Encargado, Gerente | Sí |
 | 12 | `GET /tablero` | Resumen: totales por ubicación y alertas abiertas | Gerente | Sí |
+
+La exportación CSV (P15) no es un endpoint: la app arma el archivo con los datos que ya obtiene de los endpoints 4, 8 y 9 (Caso §3.4: "se simulará localmente").
 
 ## Ejemplo: registrar un conteo
 Petición `POST /api/v1/movimientos`
@@ -96,7 +124,7 @@ Respuesta `201 Created`
 ```
 
 ## Interfaz `InventarioRepository` (Kotlin)
-Una función `suspend` por endpoint; el número es el del endpoint. La implementan `FakeInventarioRepository` (E1) y `RemoteInventarioRepository` (E2). Código en `data/repository/InventarioRepository.kt`.
+Una función `suspend` por endpoint; el número es el del endpoint. La implementan `LocalInventarioRepository` (E2, Room) y `FakeInventarioRepository` (pruebas). En el futuro la implementará también `RemoteInventarioRepository`. Código en `data/repository/InventarioRepository.kt`.
 
 ```kotlin
 interface InventarioRepository {
@@ -114,7 +142,8 @@ interface InventarioRepository {
         ubicacionId: String? = null, tipo: TipoAlerta? = null, estado: EstadoAlerta? = null
     ): List<Alerta>
     suspend fun declararReposicion(                                                      // 10
-        ubicacionId: String, codigoInterno: String, declaradaPor: String
+        ubicacionId: String, codigoInterno: String, declaradaPor: String,
+        observacion: String? = null                                                      // nuevo en E2 (mockup P12)
     ): Alerta
     suspend fun marcarDescalceRevisado(alertaId: String): Alerta                         // 11
     suspend fun obtenerTablero(): Tablero                                                // 12
@@ -123,13 +152,14 @@ interface InventarioRepository {
 
 Tipos de apoyo (en `data/model/`):
 - `ExistenciaDetalle(existencia, producto, estado)`: fila del inventario con su producto y estado calculado.
-- `NuevoMovimiento(tipo, ubicacionId, codigoInterno, cantidad, operadorId, motivo?, observacion?)`: cuerpo del POST. `operadorId` existe solo en E1; en E2 el servidor lo obtiene de la sesión o el token.
+- `NuevoMovimiento(tipo, ubicacionId, codigoInterno, cantidad, operadorId, motivo?, observacion?)`: cuerpo del POST. `operadorId` lo pone la app desde la sesión mientras no haya servidor; con el backend, el servidor lo obtendrá de la sesión o el token.
 - `ResultadoMovimiento(movimiento, alertasGeneradas)`: respuesta del POST.
+- `Alerta` suma en E2 el campo `observacion?`, que solo usa REPOSICION (máx. 200 caracteres).
 - `FiltroMovimientos(ubicacionId?, usuarioId?, tipo?, desde?, hasta?)`: filtros del historial (`null` = sin filtrar; fechas inclusivas).
 - `Tablero(resumenes, totalAlertasAbiertas)` y `ResumenUbicacion(ubicacion, totalUnidades, productosNormal, productosBajo, productosCritico, productosSinStock, alertasAbiertas)`.
 
 ### Errores
-- `SinConexionException`: no hay comunicación con el servidor (en E1, interruptor del repositorio falso).
+- `SinConexionException`: no hay comunicación con el servidor (en E2 la lanza el interruptor oculto del repositorio local).
 - `ReglaNegocioException(codigo, mensaje)`: equivale al JSON de error. Códigos usados:
 
 | Código | HTTP | Cuándo |

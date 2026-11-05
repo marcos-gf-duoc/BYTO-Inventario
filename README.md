@@ -40,7 +40,7 @@ com.byto.inventario
 ├── data/
 │   ├── model/           Modelos de datos (Producto, Movimiento, Alerta, Ubicacion…)
 │   ├── repository/      Contratos e implementaciones (InventarioRepository, SesionRepository)
-│   └── fake/            Datos sintéticos y repositorio en memoria para E1
+│   └── fake/            Datos sintéticos y repositorio en memoria
 └── ui/
     ├── theme/           Colores y tipografía accesibles
     ├── navigation/      Rutas, NavHost y SesionViewModel
@@ -60,7 +60,7 @@ com.byto.inventario
 
 ---
 
-## Pantallas implementadas (Entrega 1)
+## Pantallas implementadas (Entrega 2 — Evaluación Parcial 2)
 
 | Código | Pantalla |
 |---|---|
@@ -76,11 +76,21 @@ com.byto.inventario
 | P10 | Confirmación de movimiento |
 | P16 | Sin conexión |
 
+### En desarrollo para esta entrega
+
+| Funcionalidad | Detalle |
+|---|---|
+| P11 a P15 | Alertas, Declarar reposición, Historial, Administrar ubicaciones y Exportar reporte |
+| P17 Escanear código | Lectura de EAN-13 con la cámara (CameraX + ML Kit) y vibración al leer |
+| Persistencia local | Room: los datos se conservan al cerrar la app |
+| Exportar reporte | Archivo CSV compatible con Excel, guardado en la carpeta que elija el usuario |
+| Animaciones | Transiciones entre pantallas y retroalimentación en formularios y estados |
+
 ---
 
-## Datos sintéticos (Entrega 1)
+## Datos sintéticos
 
-La app opera sin backend en esta etapa. Los datos se generan en memoria al iniciar:
+La app opera sin backend en esta etapa. Al iniciar se cargan estos datos ficticios:
 
 - **13 ubicaciones**: Casa Matriz, 3 bodegas regionales y 9 tiendas (Santiago, La Serena, Concepción)
 - **4 usuarios simulados**: 2 operadores, 1 encargado de bodega y 1 gerente
@@ -111,7 +121,7 @@ git clone https://github.com/marcos-gf-duoc/BYTO-Inventario.git
 3. Seleccionar un emulador o dispositivo con **Android 8.0 (API 26)** o superior
 4. Ejecutar con **Run › Run 'app'**
 
-> No se requiere backend ni configuración adicional para la Entrega 1.
+> No se requiere backend ni configuración adicional para la Entrega 2.
 
 ---
 

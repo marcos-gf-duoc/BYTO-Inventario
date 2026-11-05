@@ -14,5 +14,8 @@
 .cxx
 local.properties
 
-# Mockups: solo referencia local, no se suben
+# Material de referencia: solo local, no se sube al repositorio público
+# (mockups, Caso y pauta de evaluación entregados por la asignatura)
 docs/mockups/
+docs/BYTO_mockups_1080x2400/
+docs/*.pdf
