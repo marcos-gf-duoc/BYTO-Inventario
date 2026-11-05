@@ -88,14 +88,8 @@ com.byto.inventario
 |---|---|
 | Persistencia local | Room: movimientos, alertas y estado de las ubicaciones se conservan al cerrar la app |
 | Recursos nativos | Cámara (escáner, con manejo del permiso), almacenamiento de archivos (reporte CSV con "Guardar como") y vibración |
-| Formularios validados | Errores por campo con ícono y texto; reglas en `domain/` con pruebas unitarias |
+| Formularios validados | Errores por campo con ícono y texto en todos los formularios (P08, P09, P12, P13 y P15); reglas en `domain/` con pruebas unitarias |
 | Animaciones | Transiciones entre pantallas, resultado de búsqueda (P08), stock resultante (P09), confirmación (P10), filas de listas (P11, P13), estado de ubicaciones (P14), marco del escáner (P17) y mensajes de error |
-
-### En desarrollo para esta entrega
-
-| Funcionalidad | Detalle |
-|---|---|
-| Pulido de formularios | Llevar el mensaje de error con ícono a P08 y P09 |
 
 ---
 

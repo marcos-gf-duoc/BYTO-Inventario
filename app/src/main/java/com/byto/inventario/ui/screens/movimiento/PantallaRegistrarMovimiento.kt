@@ -64,6 +64,7 @@ import com.byto.inventario.domain.ErrorValidacion
 import com.byto.inventario.domain.ReglasInventario
 import com.byto.inventario.ui.components.ChipEstadoStock
 import com.byto.inventario.ui.components.IndicadorCarga
+import com.byto.inventario.ui.components.MensajeError
 import com.byto.inventario.ui.components.TituloSeccion
 import com.byto.inventario.ui.components.coloresDe
 import com.byto.inventario.ui.components.conSigno
@@ -337,7 +338,7 @@ private fun SeccionCantidad(estado: EstadoRegistro, stockActual: Int, acciones: 
             stringResource(R.string.error_stock_negativo, conSigno(stockActual - cantidad))
         else -> null
     }
-    if (error != null) TextoError(error)
+    MensajeError(texto = error)
 
     // Conteo: diferencia con el sistema y aviso de descalce si no coincide.
     estado.diferenciaConteo?.let { diferencia ->
@@ -392,32 +393,33 @@ private fun SeccionMotivo(estado: EstadoRegistro, acciones: AccionesRegistro) {
             modifier = Modifier.fillMaxWidth()
         )
     }
-    if (estado.errorMotivo) TextoError(stringResource(R.string.error_motivo))
+    MensajeError(texto = if (estado.errorMotivo) stringResource(R.string.error_motivo) else null)
 }
 
 @Composable
 private fun CampoObservacion(estado: EstadoRegistro, alCambiar: (String) -> Unit) {
     val maximo = ReglasInventario.MAX_CARACTERES_OBSERVACION
-    OutlinedTextField(
-        value = estado.observacion,
-        onValueChange = alCambiar,
-        label = { Text(stringResource(R.string.registrar_observacion)) },
-        minLines = 3,
-        isError = estado.errorObservacion,
-        supportingText = {
-            // Contador a la derecha; si se pasa del límite, además el mensaje de error.
-            Text(
-                text = if (estado.errorObservacion) {
-                    stringResource(R.string.error_observacion, maximo)
-                } else {
-                    stringResource(R.string.registrar_contador, estado.observacion.length, maximo)
-                },
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        modifier = Modifier.fillMaxWidth()
-    )
+    Column {
+        OutlinedTextField(
+            value = estado.observacion,
+            onValueChange = alCambiar,
+            label = { Text(stringResource(R.string.registrar_observacion)) },
+            minLines = 3,
+            isError = estado.errorObservacion,
+            supportingText = {
+                // Contador a la derecha: ayuda a no pasarse del límite antes de que sea un error.
+                Text(
+                    text = stringResource(R.string.registrar_contador, estado.observacion.length, maximo),
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        MensajeError(
+            texto = if (estado.errorObservacion) stringResource(R.string.error_observacion, maximo) else null
+        )
+    }
 }
 
 /**
@@ -497,16 +499,6 @@ private fun TarjetaStockResultante(antes: Int, despues: Int?, estadoDespues: Est
             }
         }
     }
-}
-
-@Composable
-private fun TextoError(texto: String) {
-    Text(
-        text = texto,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.error,
-        modifier = Modifier.padding(start = 4.dp)
-    )
 }
 
 /** Recuadro ámbar de advertencia (texto, no solo color). */

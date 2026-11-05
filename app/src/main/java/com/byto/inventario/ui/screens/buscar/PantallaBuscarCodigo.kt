@@ -56,6 +56,7 @@ import com.byto.inventario.di.FabricaViewModels
 import com.byto.inventario.domain.ErrorEan
 import com.byto.inventario.ui.components.ChipEstadoStock
 import com.byto.inventario.ui.components.IndicadorCarga
+import com.byto.inventario.ui.components.MensajeError
 import com.byto.inventario.ui.theme.BYTOTheme
 
 /**
@@ -128,37 +129,43 @@ private fun ContenidoBuscarCodigo(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        OutlinedTextField(
-            value = estado.codigo,
-            onValueChange = alCambiarCodigo,
-            label = { Text(stringResource(R.string.buscar_etiqueta)) },
-            singleLine = true,
-            textStyle = MaterialTheme.typography.headlineSmall,
-            // Decorativo: la etiqueta del campo ya dice que es un código de barras.
-            leadingIcon = { Icon(painterResource(R.drawable.ic_codigo_barras), contentDescription = null) },
-            // isError pinta el campo de rojo y TalkBack anuncia el error; el texto explica cuál.
-            isError = estado.error != null,
-            supportingText = {
-                Text(
-                    text = when (estado.error) {
-                        ErrorEan.LARGO_INVALIDO ->
-                            stringResource(R.string.buscar_error_largo, estado.codigo.length)
-                        ErrorEan.NO_NUMERICO -> stringResource(R.string.buscar_error_numerico)
-                        ErrorEan.DIGITO_VERIFICADOR_INVALIDO -> stringResource(R.string.buscar_error_verificador)
-                        // Aviso visual de la lectura (acompaña a la vibración, que no basta sola).
-                        null -> if (estado.leidoConCamara) {
+        Column {
+            OutlinedTextField(
+                value = estado.codigo,
+                onValueChange = alCambiarCodigo,
+                label = { Text(stringResource(R.string.buscar_etiqueta)) },
+                singleLine = true,
+                textStyle = MaterialTheme.typography.headlineSmall,
+                // Decorativo: la etiqueta del campo ya dice que es un código de barras.
+                leadingIcon = { Icon(painterResource(R.drawable.ic_codigo_barras), contentDescription = null) },
+                // isError pinta el borde de rojo y TalkBack anuncia el error; MensajeError explica cuál.
+                isError = estado.error != null,
+                supportingText = {
+                    // Ayuda siempre en gris: es información, no parte del error.
+                    Text(
+                        text = if (estado.leidoConCamara) {
+                            // Aviso visual de la lectura (acompaña a la vibración, que no basta sola).
                             stringResource(R.string.buscar_leido_camara)
                         } else {
                             stringResource(R.string.buscar_ayuda)
-                        }
-                    },
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = { buscar() }),
-            modifier = Modifier.fillMaxWidth()
-        )
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = { buscar() }),
+                modifier = Modifier.fillMaxWidth()
+            )
+            MensajeError(
+                texto = when (estado.error) {
+                    ErrorEan.LARGO_INVALIDO -> stringResource(R.string.buscar_error_largo, estado.codigo.length)
+                    ErrorEan.NO_NUMERICO -> stringResource(R.string.buscar_error_numerico)
+                    ErrorEan.DIGITO_VERIFICADOR_INVALIDO -> stringResource(R.string.buscar_error_verificador)
+                    null -> null
+                }
+            )
+        }
 
         Button(
             onClick = buscar,
