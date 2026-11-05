@@ -31,6 +31,7 @@ import com.byto.inventario.ui.components.SeccionInferior
 import com.byto.inventario.ui.screens.buscar.PantallaBuscarCodigo
 import com.byto.inventario.ui.screens.detalle.PantallaDetalleProducto
 import com.byto.inventario.ui.screens.enconstruccion.PantallaEnConstruccion
+import com.byto.inventario.ui.screens.escaner.PantallaEscanearCodigo
 import com.byto.inventario.ui.screens.inicio.PantallaInicioEncargado
 import com.byto.inventario.ui.screens.inicio.PantallaInicioGerente
 import com.byto.inventario.ui.screens.inicio.PantallaInicioOperador
@@ -227,12 +228,32 @@ fun BytoNavegacion(
                     alSinSesion = irALogin
                 )
             }
-            composable(Pantalla.BUSCAR_CODIGO.ruta) {
+            composable(Pantalla.BUSCAR_CODIGO.ruta) { entrada ->
+                // P17 deja aquí el código leído (en el "savedStateHandle" de esta entrada de la pila).
+                // getStateFlow lo vuelve observable: cuando llega un código, P08 se redibuja y lo usa.
+                val codigoEscaneado by entrada.savedStateHandle
+                    .getStateFlow<String?>(Pantalla.RESULTADO_CODIGO_ESCANEADO, null)
+                    .collectAsState()
                 PantallaBuscarCodigo(
+                    codigoEscaneado = codigoEscaneado,
+                    // Se borra apenas se usa, para no repetir la búsqueda al volver de otra pantalla.
+                    alUsarCodigoEscaneado = { entrada.savedStateHandle[Pantalla.RESULTADO_CODIGO_ESCANEADO] = null },
+                    alEscanear = { navController.navigate(Pantalla.ESCANEAR_CODIGO.ruta) },
                     alVerDetalle = { codigo -> navController.navigate(Pantalla.rutaDetalle(codigo)) },
                     alRegistrar = { codigo -> navController.navigate(Pantalla.rutaRegistrar(codigo)) },
                     alSinConexion = irASinConexion,
                     alSinSesion = irALogin
+                )
+            }
+            composable(Pantalla.ESCANEAR_CODIGO.ruta) {
+                PantallaEscanearCodigo(
+                    alLeerCodigo = { codigo ->
+                        // Entrega el código a la pantalla anterior (P08) y vuelve a ella.
+                        navController.previousBackStackEntry?.savedStateHandle
+                            ?.set(Pantalla.RESULTADO_CODIGO_ESCANEADO, codigo)
+                        navController.popBackStack()
+                    },
+                    alEscribirCodigo = { navController.popBackStack() }
                 )
             }
             composable(Pantalla.SIN_CONEXION.ruta) {
@@ -261,6 +282,7 @@ private val implementadas = setOf(
     Pantalla.INVENTARIO,
     Pantalla.DETALLE_PRODUCTO,
     Pantalla.BUSCAR_CODIGO,
+    Pantalla.ESCANEAR_CODIGO,
     Pantalla.REGISTRAR_MOVIMIENTO,
     Pantalla.CONFIRMACION_MOVIMIENTO
 )
@@ -276,7 +298,7 @@ private fun NavHostController.navegarLimpiandoPila(pantalla: Pantalla) {
 private fun seccionDe(pantalla: Pantalla?): SeccionInferior? = when (pantalla) {
     Pantalla.INICIO_OPERADOR, Pantalla.INICIO_ENCARGADO, Pantalla.INICIO_GERENTE -> SeccionInferior.INICIO
     // Detalle y búsqueda trabajan sobre el inventario, así que mantienen esa sección resaltada.
-    Pantalla.INVENTARIO, Pantalla.DETALLE_PRODUCTO, Pantalla.BUSCAR_CODIGO,
+    Pantalla.INVENTARIO, Pantalla.DETALLE_PRODUCTO, Pantalla.BUSCAR_CODIGO, Pantalla.ESCANEAR_CODIGO,
     Pantalla.CONFIRMACION_MOVIMIENTO -> SeccionInferior.INVENTARIO
     Pantalla.ALERTAS -> SeccionInferior.ALERTAS
     Pantalla.HISTORIAL -> SeccionInferior.HISTORIAL

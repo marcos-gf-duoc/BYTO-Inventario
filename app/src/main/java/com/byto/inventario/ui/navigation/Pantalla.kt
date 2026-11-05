@@ -6,9 +6,9 @@ import com.byto.inventario.data.model.EstadoStock
 import com.byto.inventario.data.model.Perfil
 
 /**
- * Las 16 pantallas de la app. Cada una tiene:
+ * Las 17 pantallas de la app. Cada una tiene:
  * - [ruta]: el texto que usa Navigation Compose para identificarla (como una URL interna).
- * - [codigo]: el código del diseño (P01…P16), útil para conversar sobre ella.
+ * - [codigo]: el código del diseño (P01…P17), útil para conversar sobre ella.
  * - [titulo]: el título visible, desde strings.xml.
  * - [patron]: la ruta con sus argumentos, tal como se registra en el NavHost.
  *   Por ejemplo "detalle_producto/{codigoInterno}": al navegar, {codigoInterno}
@@ -43,7 +43,9 @@ enum class Pantalla(
     HISTORIAL("historial", "P13", R.string.titulo_p13),
     ADMINISTRAR_UBICACIONES("administrar_ubicaciones", "P14", R.string.titulo_p14),
     EXPORTAR_REPORTE("exportar_reporte", "P15", R.string.titulo_p15),
-    SIN_CONEXION("sin_conexion", "P16", R.string.titulo_p16);
+    SIN_CONEXION("sin_conexion", "P16", R.string.titulo_p16),
+    // Nueva en E2 (sin mockup): se abre desde P08 y le devuelve el código leído.
+    ESCANEAR_CODIGO("escanear_codigo", "P17", R.string.titulo_p17);
 
     companion object {
         // Nombres de los argumentos, compartidos por las rutas y los ViewModels que los leen.
@@ -53,6 +55,9 @@ enum class Pantalla(
         const val ARG_GENERADAS = "generadas"
         const val ARG_ACTUALIZADAS = "actualizadas"
         const val ARG_CERRADAS = "cerradas"
+
+        /** Clave con la que P17 deja el código leído para que P08 lo recoja al volver. */
+        const val RESULTADO_CODIGO_ESCANEADO = "codigoEscaneado"
 
         /** Busca la pantalla a partir del patrón que informa el NavController. */
         fun desdeRuta(patron: String?): Pantalla? = entries.find { it.patron == patron }
@@ -81,8 +86,11 @@ enum class Pantalla(
         /** Pantallas sin barras: aún no hay sesión, o no se puede usar la app. */
         val sinBarras = setOf(LOGIN, SELECCION_UBICACION, SIN_CONEXION)
 
-        /** Formularios a pantalla completa: barra superior, pero sin barra inferior (como en el mockup). */
-        val sinBarraInferior = setOf(REGISTRAR_MOVIMIENTO)
+        /**
+         * Barra superior, pero sin barra inferior: formularios a pantalla completa (como en el
+         * mockup) y el escáner, que necesita todo el espacio para la cámara.
+         */
+        val sinBarraInferior = setOf(REGISTRAR_MOVIMIENTO, ESCANEAR_CODIGO)
 
         /** Sin flecha "Volver": P10 es un resultado final; se sale con sus botones (o con "atrás"). */
         // get(): se calcula al leerlo, así no importa que [raices] se declare más abajo.

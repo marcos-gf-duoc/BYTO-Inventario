@@ -9,6 +9,7 @@ import com.byto.inventario.BytoApp
 import com.byto.inventario.ui.navigation.SesionViewModel
 import com.byto.inventario.ui.screens.buscar.BuscarCodigoViewModel
 import com.byto.inventario.ui.screens.detalle.DetalleProductoViewModel
+import com.byto.inventario.ui.screens.escaner.EscanearCodigoViewModel
 import com.byto.inventario.ui.screens.inicio.InicioEncargadoViewModel
 import com.byto.inventario.ui.screens.inicio.InicioGerenteViewModel
 import com.byto.inventario.ui.screens.inicio.InicioOperadorViewModel
@@ -64,6 +65,7 @@ object FabricaViewModels {
             val c = contenedor()
             BuscarCodigoViewModel(c.inventarioRepository, c.sesionRepository)
         }
+        initializer { EscanearCodigoViewModel(contenedor().vibrador) }
         initializer {
             val c = contenedor()
             RegistrarMovimientoViewModel(c.inventarioRepository, c.sesionRepository, createSavedStateHandle())

@@ -24,6 +24,7 @@
     <string name="titulo_p14">Administrar ubicaciones</string>
     <string name="titulo_p15">Exportar reporte</string>
     <string name="titulo_p16">Sin conexión</string>
+    <string name="titulo_p17">Escanear código</string>
 
     <!-- Barras -->
     <string name="accion_volver">Volver</string>
@@ -142,7 +143,9 @@
 
     <!-- P08 Buscar por código -->
     <string name="buscar_etiqueta">Código de barras (EAN-13)</string>
-    <string name="buscar_ayuda">13 dígitos. La lectura con cámara estará disponible en la entrega final.</string>
+    <string name="buscar_ayuda">13 dígitos, o usa la cámara.</string>
+    <string name="buscar_leido_camara">Código leído con la cámara.</string>
+    <string name="buscar_escanear">Escanear con cámara</string>
     <string name="buscar_error_largo">El código debe tener 13 dígitos (tiene %1$d).</string>
     <string name="buscar_error_numerico">El código solo puede tener números.</string>
     <string name="buscar_error_verificador">Dígito verificador inválido. Revisa que el código esté bien escrito.</string>
@@ -152,6 +155,17 @@
     <string name="buscar_no_encontrado">Producto no encontrado en esta ubicación</string>
     <string name="buscar_ver_detalle">Ver detalle</string>
     <string name="buscar_registrar">Registrar</string>
+
+    <!-- P17 Escanear código -->
+    <string name="escanear_instruccion">Apunta al código de barras</string>
+    <string name="escanear_cd_camara">Vista de la cámara para leer el código de barras</string>
+    <string name="escanear_codigo_invalido">El código leído no es un EAN-13 válido. Intenta de nuevo.</string>
+    <string name="escanear_sin_camara">No se pudo abrir la cámara de este teléfono. Puedes escribir el código a mano.</string>
+    <string name="escanear_permiso_titulo">Se necesita la cámara</string>
+    <string name="escanear_permiso_texto">BYTO usa la cámara solo para leer códigos de barras. Las imágenes no se guardan ni se envían.</string>
+    <string name="escanear_permiso_permitir">Permitir cámara</string>
+    <string name="escanear_permiso_ajustes">Abrir ajustes</string>
+    <string name="escanear_escribir">Escribir el código a mano</string>
 
     <!-- P09 Registrar movimiento -->
     <string name="registrar_codigos">%1$s · EAN %2$s</string>

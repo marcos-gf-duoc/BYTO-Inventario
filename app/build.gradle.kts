@@ -52,6 +52,13 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    // CameraX: muestra la cámara (camera-view) y entrega cada imagen al lector de códigos.
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    // ML Kit con el modelo incluido en la app: reconoce el EAN-13 sin conexión ni Google Play.
+    implementation(libs.mlkit.barcode.scanning)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

@@ -6,6 +6,7 @@ import com.byto.inventario.data.local.LocalInventarioRepository
 import com.byto.inventario.data.repository.InventarioRepository
 import com.byto.inventario.data.repository.SesionRepository
 import com.byto.inventario.data.repository.SimuladorConexion
+import com.byto.inventario.dispositivo.Vibrador
 
 /**
  * Crea a mano las dependencias de la app, una sola vez (inyección manual, sin Hilt ni Koin).
@@ -14,7 +15,8 @@ import com.byto.inventario.data.repository.SimuladorConexion
  * Para cambiar el origen de los datos (por ejemplo, al futuro repositorio remoto)
  * basta con cambiar la línea de [repositorioLocal]: los ViewModels no se enteran.
  *
- * @param context la Application; Room lo necesita para ubicar el archivo de la base.
+ * @param context la Application; Room lo necesita para ubicar el archivo de la base,
+ * y los recursos del teléfono (como el vibrador) para obtener sus servicios.
  */
 class AppContainer(context: Context) {
 
@@ -29,4 +31,6 @@ class AppContainer(context: Context) {
     val simuladorConexion: SimuladorConexion = repositorioLocal
 
     val sesionRepository = SesionRepository()
+
+    val vibrador = Vibrador(context)
 }

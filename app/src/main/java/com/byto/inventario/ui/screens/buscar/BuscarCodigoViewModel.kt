@@ -10,6 +10,7 @@ import com.byto.inventario.data.repository.SinConexionException
 import com.byto.inventario.domain.ErrorEan
 import com.byto.inventario.domain.Permisos
 import com.byto.inventario.domain.ValidadorEan
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,9 +23,11 @@ import kotlinx.coroutines.launch
  * @param resultado el producto encontrado en la ubicación activa.
  * @param noEncontrado el código es válido, pero no hay producto con él en esta ubicación.
  * @param puedeRegistrar muestra el botón "Registrar" (solo Operador en sus tiendas).
+ * @param leidoConCamara el código actual vino del escáner (P17); la pantalla lo indica en texto.
  */
 data class EstadoBuscarCodigo(
     val codigo: String = "",
+    val leidoConCamara: Boolean = false,
     val error: ErrorEan? = null,
     val buscando: Boolean = false,
     val resultado: ExistenciaDetalle? = null,
@@ -52,13 +55,26 @@ class BuscarCodigoViewModel(
     private var reintentarAlVolver = false
     private var yaSeMostro = false
 
+    /** Búsqueda en curso. Si empieza otra, la anterior se cancela para que no pise el resultado. */
+    private var busqueda: Job? = null
+
     /** Al cambiar el texto se borran el error y el resultado anteriores: ya no corresponden. */
     fun cambiarCodigo(texto: String) {
         // Solo dígitos y como máximo 13: el teclado numérico podría dejar pasar otros caracteres.
         val limpio = texto.filter { it.isDigit() }.take(ValidadorEan.LARGO)
         _estado.update {
-            it.copy(codigo = limpio, error = null, resultado = null, noEncontrado = false, falloCarga = false)
+            it.copy(
+                codigo = limpio, leidoConCamara = false, error = null,
+                resultado = null, noEncontrado = false, falloCarga = false
+            )
         }
+    }
+
+    /** Código que llega desde el escáner (P17): se pone en el campo y se busca de inmediato. */
+    fun usarCodigoEscaneado(codigo: String) {
+        cambiarCodigo(codigo)
+        _estado.update { it.copy(leidoConCamara = true) }
+        buscar()
     }
 
     /** Valida con la función pura del dominio y, si el código es válido, lo busca. */
@@ -74,7 +90,8 @@ class BuscarCodigoViewModel(
             _estado.update { it.copy(sinSesion = true) }
             return
         }
-        viewModelScope.launch {
+        busqueda?.cancel()
+        busqueda = viewModelScope.launch {
             _estado.update {
                 it.copy(buscando = true, resultado = null, noEncontrado = false, falloCarga = false)
             }

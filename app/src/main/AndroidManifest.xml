@@ -2,6 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Escáner de P17. Es un permiso "peligroso": la app lo pide al usuario al abrir el escáner. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Vibración al leer un código. Es un permiso "normal": se concede al instalar. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- required="false": la app se puede instalar sin cámara; ahí se usa la búsqueda manual de P08. -->
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false" />
+
     <application
         android:name=".BytoApp"
         android:allowBackup="true"

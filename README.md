@@ -71,18 +71,24 @@ com.byto.inventario
 | P05 | Inicio Gerente |
 | P06 | Inventario de la ubicación activa |
 | P07 | Detalle de producto |
-| P08 | Buscar por código de barras (manual) |
+| P08 | Buscar por código de barras (manual o con cámara) |
 | P09 | Registrar movimiento |
 | P10 | Confirmación de movimiento |
 | P16 | Sin conexión |
+| P17 | Escanear código: lectura de EAN-13 con la cámara (CameraX + ML Kit) y vibración al leer |
+
+### Funcionalidades transversales implementadas
+
+| Funcionalidad | Detalle |
+|---|---|
+| Persistencia local | Room: movimientos, alertas y estado de las ubicaciones se conservan al cerrar la app |
+| Recursos nativos | Cámara (escáner, con manejo del permiso) y vibración |
 
 ### En desarrollo para esta entrega
 
 | Funcionalidad | Detalle |
 |---|---|
 | P11 a P15 | Alertas, Declarar reposición, Historial, Administrar ubicaciones y Exportar reporte |
-| P17 Escanear código | Lectura de EAN-13 con la cámara (CameraX + ML Kit) y vibración al leer |
-| Persistencia local | Room: los datos se conservan al cerrar la app |
 | Exportar reporte | Archivo CSV compatible con Excel, guardado en la carpeta que elija el usuario |
 | Animaciones | Transiciones entre pantallas y retroalimentación en formularios y estados |
 
@@ -122,6 +128,8 @@ git clone https://github.com/marcos-gf-duoc/BYTO-Inventario.git
 4. Ejecutar con **Run › Run 'app'**
 
 > No se requiere backend ni configuración adicional para la Entrega 2.
+
+**Códigos de prueba para el escáner:** abre `docs/anexos/codigos_prueba_EAN13.html` en el navegador (o imprímelo al 100 %) y escanea cualquiera de los 25 códigos ficticios del catálogo desde la pantalla Buscar por código › Escanear con cámara.
 
 ---
 

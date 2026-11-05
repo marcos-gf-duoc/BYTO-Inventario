@@ -54,9 +54,16 @@ import com.byto.inventario.ui.theme.BYTOTheme
 
 /**
  * P08 Buscar por código. [alVerDetalle] y [alRegistrar] reciben el código interno del producto.
+ *
+ * @param codigoEscaneado EAN-13 que devolvió el escáner (P17), o null si no hay uno nuevo.
+ * @param alUsarCodigoEscaneado avisa que ya se usó, para no buscarlo otra vez.
+ * @param alEscanear abre el escáner (P17).
  */
 @Composable
 fun PantallaBuscarCodigo(
+    codigoEscaneado: String?,
+    alUsarCodigoEscaneado: () -> Unit,
+    alEscanear: () -> Unit,
     alVerDetalle: (String) -> Unit,
     alRegistrar: (String) -> Unit,
     alSinConexion: () -> Unit,
@@ -66,6 +73,12 @@ fun PantallaBuscarCodigo(
     val estado by viewModel.estado.collectAsState()
 
     LaunchedEffect(Unit) { viewModel.alMostrarse() }
+    LaunchedEffect(codigoEscaneado) {
+        if (codigoEscaneado != null) {
+            viewModel.usarCodigoEscaneado(codigoEscaneado)
+            alUsarCodigoEscaneado()
+        }
+    }
     LaunchedEffect(estado.irASinConexion) {
         if (estado.irASinConexion) {
             viewModel.navegacionSinConexionRealizada()
@@ -80,6 +93,7 @@ fun PantallaBuscarCodigo(
         estado = estado,
         alCambiarCodigo = viewModel::cambiarCodigo,
         alBuscar = viewModel::buscar,
+        alEscanear = alEscanear,
         alVerDetalle = alVerDetalle,
         alRegistrar = alRegistrar
     )
@@ -90,6 +104,7 @@ private fun ContenidoBuscarCodigo(
     estado: EstadoBuscarCodigo,
     alCambiarCodigo: (String) -> Unit,
     alBuscar: () -> Unit,
+    alEscanear: () -> Unit,
     alVerDetalle: (String) -> Unit,
     alRegistrar: (String) -> Unit
 ) {
@@ -124,7 +139,12 @@ private fun ContenidoBuscarCodigo(
                             stringResource(R.string.buscar_error_largo, estado.codigo.length)
                         ErrorEan.NO_NUMERICO -> stringResource(R.string.buscar_error_numerico)
                         ErrorEan.DIGITO_VERIFICADOR_INVALIDO -> stringResource(R.string.buscar_error_verificador)
-                        null -> stringResource(R.string.buscar_ayuda)
+                        // Aviso visual de la lectura (acompaña a la vibración, que no basta sola).
+                        null -> if (estado.leidoConCamara) {
+                            stringResource(R.string.buscar_leido_camara)
+                        } else {
+                            stringResource(R.string.buscar_ayuda)
+                        }
                     },
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -148,6 +168,26 @@ private fun ContenidoBuscarCodigo(
             )
             Spacer(Modifier.width(ButtonDefaults.IconSpacing))
             Text(stringResource(R.string.buscar_boton), style = MaterialTheme.typography.titleMedium)
+        }
+
+        OutlinedButton(
+            onClick = {
+                foco.clearFocus()
+                alEscanear()
+            },
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 56.dp)
+        ) {
+            // Decorativo: el texto del botón ya dice qué hace.
+            Icon(
+                painterResource(R.drawable.ic_camara),
+                contentDescription = null,
+                modifier = Modifier.size(ButtonDefaults.IconSize)
+            )
+            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+            Text(stringResource(R.string.buscar_escanear), style = MaterialTheme.typography.titleMedium)
         }
 
         when {
@@ -260,6 +300,7 @@ private fun ContenidoBuscarCodigoPreview() {
             ),
             alCambiarCodigo = {},
             alBuscar = {},
+            alEscanear = {},
             alVerDetalle = {},
             alRegistrar = {}
         )
