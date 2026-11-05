@@ -33,6 +33,7 @@ import com.byto.inventario.ui.screens.buscar.PantallaBuscarCodigo
 import com.byto.inventario.ui.screens.detalle.PantallaDetalleProducto
 import com.byto.inventario.ui.screens.enconstruccion.PantallaEnConstruccion
 import com.byto.inventario.ui.screens.escaner.PantallaEscanearCodigo
+import com.byto.inventario.ui.screens.historial.PantallaHistorial
 import com.byto.inventario.ui.screens.inicio.PantallaInicioEncargado
 import com.byto.inventario.ui.screens.inicio.PantallaInicioGerente
 import com.byto.inventario.ui.screens.inicio.PantallaInicioOperador
@@ -108,8 +109,8 @@ fun BytoNavegacion(
                             // En el registro importa quién y dónde: "T-ST-1 · OP-001".
                             Pantalla.REGISTRAR_MOVIMIENTO, Pantalla.CONFIRMACION_MOVIMIENTO ->
                                 if (ubicacion != null && usuario != null) "${ubicacion?.id} · ${usuario?.id}" else null
-                            // Alertas abarca todas las ubicaciones del usuario: mientras carga, su ID.
-                            Pantalla.ALERTAS -> usuario?.id
+                            // Alertas e Historial abarcan todas las ubicaciones del usuario: mientras cargan, su ID.
+                            Pantalla.ALERTAS, Pantalla.HISTORIAL -> usuario?.id
                             // Quién declara y desde dónde: "EB-001 · Bodega Regional Santiago".
                             Pantalla.DECLARAR_REPOSICION ->
                                 if (ubicacion != null && usuario != null) "${usuario?.id} · ${ubicacion?.nombre}" else null
@@ -273,6 +274,13 @@ fun BytoNavegacion(
                     alSinSesion = irALogin
                 )
             }
+            composable(Pantalla.HISTORIAL.ruta) { entrada ->
+                PantallaHistorial(
+                    alConocerSubtitulo = { texto -> subtituloDinamico = entrada.id to texto },
+                    alSinConexion = irASinConexion,
+                    alSinSesion = irALogin
+                )
+            }
             composable(Pantalla.DECLARAR_REPOSICION.ruta) {
                 PantallaDeclararReposicion(alSinConexion = irASinConexion, alSinSesion = irALogin)
             }
@@ -306,7 +314,8 @@ private val implementadas = setOf(
     Pantalla.REGISTRAR_MOVIMIENTO,
     Pantalla.CONFIRMACION_MOVIMIENTO,
     Pantalla.ALERTAS,
-    Pantalla.DECLARAR_REPOSICION
+    Pantalla.DECLARAR_REPOSICION,
+    Pantalla.HISTORIAL
 )
 
 /** Navega a [pantalla] borrando toda la pila, para que "atrás" no regrese a lo anterior. */

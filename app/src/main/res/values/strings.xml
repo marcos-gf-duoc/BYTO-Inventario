@@ -20,7 +20,7 @@
     <string name="titulo_p10">Movimiento registrado</string>
     <string name="titulo_p11">Alertas</string>
     <string name="titulo_p12">Declarar reposición</string>
-    <string name="titulo_p13">Historial</string>
+    <string name="titulo_p13">Historial / auditoría</string>
     <string name="titulo_p14">Administrar ubicaciones</string>
     <string name="titulo_p15">Exportar reporte</string>
     <string name="titulo_p16">Sin conexión</string>
@@ -211,7 +211,32 @@
     <string name="reposicion_error_ya_abierta">Ya hay una reposición abierta de este producto en esta tienda.</string>
     <string name="reposicion_error_envio">No se pudo declarar la reposición. Intenta de nuevo.</string>
     <string name="reposicion_sin_tiendas">No tienes tiendas activas a cargo.</string>
-    <string name="cd_abrir_lista">Abrir la lista</string>
+
+    <!-- P13 Historial / auditoría -->
+    <plurals name="historial_subtitulo">
+        <item quantity="one">%1$s · %2$d movimiento</item>
+        <item quantity="many">%1$s · %2$d movimientos</item>
+        <item quantity="other">%1$s · %2$d movimientos</item>
+    </plurals>
+    <string name="historial_ubicacion_todas">Todas</string>
+    <string name="historial_operador_todos">Todos</string>
+    <string name="historial_tipo">Tipo: %1$s</string>
+    <string name="historial_tipo_todos">Tipo: todos</string>
+    <string name="historial_desde">Desde: %1$s</string>
+    <string name="historial_hasta">Hasta: %1$s</string>
+    <string name="historial_sin_fecha">—</string>
+    <string name="historial_limpiar">Limpiar filtros</string>
+    <string name="historial_error_rango">La fecha Desde no puede ser posterior a Hasta.</string>
+    <string name="historial_vacio">No hay movimientos con estos filtros.</string>
+    <string name="historial_encabezado">%1$s · %2$s · %3$s</string>
+    <string name="historial_cantidad">%1$s %2$s</string>
+    <string name="historial_conteo">%1$s %2$d → %3$d</string>
+    <string name="historial_con_nota">%1$s · %2$s</string>
+    <string name="historial_aceptar">Aceptar</string>
+    <string name="historial_cancelar">Cancelar</string>
+    <string name="historial_quitar_fecha">Quitar fecha</string>
+    <string name="historial_titulo_desde">Desde (fecha inicial)</string>
+    <string name="historial_titulo_hasta">Hasta (fecha final)</string>
 
     <!-- P09 Registrar movimiento -->
     <string name="registrar_codigos">%1$s · EAN %2$s</string>

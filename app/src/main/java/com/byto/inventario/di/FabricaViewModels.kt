@@ -11,6 +11,7 @@ import com.byto.inventario.ui.screens.alertas.AlertasViewModel
 import com.byto.inventario.ui.screens.buscar.BuscarCodigoViewModel
 import com.byto.inventario.ui.screens.detalle.DetalleProductoViewModel
 import com.byto.inventario.ui.screens.escaner.EscanearCodigoViewModel
+import com.byto.inventario.ui.screens.historial.HistorialViewModel
 import com.byto.inventario.ui.screens.inicio.InicioEncargadoViewModel
 import com.byto.inventario.ui.screens.inicio.InicioGerenteViewModel
 import com.byto.inventario.ui.screens.inicio.InicioOperadorViewModel
@@ -75,6 +76,10 @@ object FabricaViewModels {
         initializer {
             val c = contenedor()
             DeclararReposicionViewModel(c.inventarioRepository, c.sesionRepository)
+        }
+        initializer {
+            val c = contenedor()
+            HistorialViewModel(c.inventarioRepository, c.sesionRepository)
         }
         initializer {
             val c = contenedor()

@@ -1,6 +1,7 @@
 package com.byto.inventario.domain
 
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -35,8 +36,24 @@ object Fechas {
     fun rangoDeHoyEnChile(ahora: Instant = Instant.now()): Pair<Instant, Instant> {
         // atZone(): el mismo instante visto con la hora de Chile. (LocalDate.ofInstant no existe en minSdk 26.)
         val hoy = ahora.atZone(ZONA_CHILE).toLocalDate()
-        val desde = hoy.atStartOfDay(ZONA_CHILE).toInstant()
-        val hasta = hoy.plusDays(1).atStartOfDay(ZONA_CHILE).toInstant().minusNanos(1)
-        return desde to hasta
+        return inicioDelDia(hoy) to finDelDia(hoy)
     }
+
+    /** Primer instante (00:00:00) de ese día en Chile, expresado en UTC. */
+    fun inicioDelDia(dia: LocalDate): Instant = dia.atStartOfDay(ZONA_CHILE).toInstant()
+
+    /** Último instante (23:59:59,999…) de ese día en Chile, expresado en UTC. */
+    fun finDelDia(dia: LocalDate): Instant = dia.plusDays(1).atStartOfDay(ZONA_CHILE).toInstant().minusNanos(1)
+
+    /**
+     * Regla del filtro de fechas del historial (P13): "Desde" no puede ser posterior a "Hasta".
+     * Si falta alguna de las dos, el rango es válido (queda abierto por ese lado).
+     */
+    fun rangoValido(desde: LocalDate?, hasta: LocalDate?): Boolean =
+        desde == null || hasta == null || !desde.isAfter(hasta)
+
+    private val FORMATO_DIA: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
+    /** Día como texto, por ejemplo "16-10-2026". */
+    fun dia(dia: LocalDate): String = FORMATO_DIA.format(dia)
 }

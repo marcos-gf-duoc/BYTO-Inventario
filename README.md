@@ -76,6 +76,7 @@ com.byto.inventario
 | P10 | Confirmación de movimiento |
 | P11 | Alertas abiertas con filtros por tipo y "Marcar revisado" para descalces |
 | P12 | Declarar reposición (Encargado), con validación por campo |
+| P13 | Historial / auditoría con filtros por ubicación, fechas, operador y tipo |
 | P16 | Sin conexión |
 | P17 | Escanear código: lectura de EAN-13 con la cámara (CameraX + ML Kit) y vibración al leer |
 
@@ -90,7 +91,7 @@ com.byto.inventario
 
 | Funcionalidad | Detalle |
 |---|---|
-| P13 a P15 | Historial, Administrar ubicaciones y Exportar reporte |
+| P14 y P15 | Administrar ubicaciones y Exportar reporte |
 | Exportar reporte | Archivo CSV compatible con Excel, guardado en la carpeta que elija el usuario |
 | Animaciones | Transiciones entre pantallas y retroalimentación en formularios y estados |
 

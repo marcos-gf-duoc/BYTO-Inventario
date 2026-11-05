@@ -94,6 +94,14 @@ Pantalla P11 Alertas:
 - Orden: reposiciones, descalces y stock bajo (sin stock, crítico, bajo); dentro de cada grupo, la más reciente primero.
 - "Marcar revisado" solo aparece en los descalces, para el Encargado y el Gerente.
 
+Pantalla P13 Historial / auditoría (Caso §4.1):
+- Quién ve qué:
+  - Gerente: todos los movimientos.
+  - Encargado: los de sus ubicaciones (su bodega y las tiendas que consulta). **Por confirmar:** el endpoint 8 no lo menciona.
+  - Operador: solo los suyos, sin filtro de operador.
+- Filtros: ubicación, fecha desde, fecha hasta (días en hora de Chile, ambos inclusivos), operador y tipo.
+- Si "Desde" es posterior a "Hasta", se muestra el error y no se busca hasta corregirlo.
+
 Reposición en E2: solo se registra la entrada en la tienda; la salida en la bodega (traspaso vinculado) queda para el futuro. Al declararla, el Encargado puede agregar una observación opcional (máx. 200 caracteres), como muestra el mockup P12.
 
 ## Catálogo sintético (25 productos: 5 categorías × 5; EAN-13 ficticios con prefijo interno 2)
