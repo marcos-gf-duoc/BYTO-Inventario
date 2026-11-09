@@ -1,5 +1,6 @@
 package com.byto.inventario.ui.screens.exportar
 
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -32,8 +33,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +48,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -73,6 +77,7 @@ fun PantallaExportarReporte(
     val estado by viewModel.estado.collectAsState()
     val avisos = remember { SnackbarHostState() }
     val alcance = rememberCoroutineScope()
+    val contexto = LocalContext.current
 
     // Selector "Guardar como" del sistema. CreateDocument recibe el tipo de archivo y, al
     // lanzarlo, el nombre sugerido; devuelve la dirección (Uri) elegida, o null si se cancela.
@@ -97,12 +102,31 @@ fun PantallaExportarReporte(
         if (estado.sinSesion) alSinSesion()
     }
 
-    // Confirmación visible del guardado. Se lanza aparte para que avisoMostrado() no la cancele.
+    // Confirmación visible del guardado y botón de compartir.
     val textoGuardado = estado.guardado?.let { stringResource(R.string.exportar_guardado, it) }
-    LaunchedEffect(textoGuardado) {
-        if (textoGuardado != null) {
+    val ultimoUri = estado.ultimoDestino
+    LaunchedEffect(textoGuardado, ultimoUri) {
+        if (textoGuardado != null && ultimoUri != null) {
             viewModel.avisoMostrado()
-            alcance.launch { avisos.showSnackbar(textoGuardado) }
+            alcance.launch {
+                val resultado = avisos.showSnackbar(
+                    message = textoGuardado,
+                    actionLabel = "Compartir",
+                    duration = SnackbarDuration.Long
+                )
+                if (resultado == SnackbarResult.ActionPerformed) {
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/csv"
+                        putExtra(Intent.EXTRA_STREAM, ultimoUri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    try {
+                        contexto.startActivity(Intent.createChooser(intent, "Compartir reporte CSV"))
+                    } catch (e: Exception) {
+                        // Ignorar si no hay app para compartir
+                    }
+                }
+            }
         }
     }
 
@@ -245,7 +269,7 @@ private fun CampoUbicacion(estado: EstadoExportar, alElegir: (AlcanceReporte) ->
                 onValueChange = {},
                 readOnly = true,
                 label = { Text(stringResource(R.string.exportar_ubicacion)) },
-                // Decorativo: la etiqueta "Ubicación" ya lo dice.
+                // Decorativo: la etiqueta "Ubicación" já lo dice.
                 leadingIcon = { Icon(painterResource(R.drawable.ic_ubicacion), contentDescription = null) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = abierto) },
                 isError = estado.errores.ubicacion,

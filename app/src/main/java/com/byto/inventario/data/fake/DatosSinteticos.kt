@@ -50,13 +50,15 @@ object DatosSinteticos {
             id = "OP-001",
             etiqueta = "Operario Santiago",
             perfil = Perfil.OPERADOR,
-            ubicacionesIds = listOf("T-ST-1", "T-ST-2", "T-ST-3")
+            ubicacionesIds = listOf("T-ST-1", "T-ST-2", "T-ST-3"),
+            password = "123456"
         ),
         Usuario(
             id = "OP-002",
             etiqueta = "Operario La Serena",
             perfil = Perfil.OPERADOR,
-            ubicacionesIds = listOf("T-LS-1", "T-LS-2", "T-LS-3")
+            ubicacionesIds = listOf("T-LS-1", "T-LS-2", "T-LS-3"),
+            password = "123457"
         ),
         Usuario(
             id = "EB-001",
@@ -64,13 +66,15 @@ object DatosSinteticos {
             perfil = Perfil.ENCARGADO_BODEGA,
             ubicacionesIds = listOf("B-ST-1"),
             // Las tiendas que abastece su bodega: solo consulta.
-            ubicacionesConsultaIds = listOf("T-ST-1", "T-ST-2", "T-ST-3")
+            ubicacionesConsultaIds = listOf("T-ST-1", "T-ST-2", "T-ST-3"),
+            password = "123458"
         ),
         Usuario(
             id = "GE-001",
             etiqueta = "Gerente BYTO",
             perfil = Perfil.GERENTE,
-            ubicacionesIds = ubicaciones.map { it.id } // Todas
+            ubicacionesIds = ubicaciones.map { it.id }, // Todas
+            password = "123459"
         )
     )
 

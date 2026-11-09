@@ -21,6 +21,7 @@ enum class Pantalla(
     @param:StringRes val titulo: Int,
     val patron: String = ruta
 ) {
+    SPLASH("splash", "P00", R.string.titulo_p01),
     LOGIN("login", "P01", R.string.titulo_p01),
     SELECCION_UBICACION("seleccion_ubicacion", "P02", R.string.titulo_p02),
     INICIO_OPERADOR("inicio_operador", "P03", R.string.titulo_p03),
@@ -84,7 +85,7 @@ enum class Pantalla(
             "&$ARG_CERRADAS=${cerradas.joinToString(",")}"
 
         /** Pantallas sin barras: aún no hay sesión, o no se puede usar la app. */
-        val sinBarras = setOf(LOGIN, SELECCION_UBICACION, SIN_CONEXION)
+        val sinBarras = setOf(SPLASH, LOGIN, SELECCION_UBICACION, SIN_CONEXION)
 
         /**
          * Barra superior, pero sin barra inferior: formularios a pantalla completa (como en el

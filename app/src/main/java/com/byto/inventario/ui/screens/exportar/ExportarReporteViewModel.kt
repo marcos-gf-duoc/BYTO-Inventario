@@ -51,6 +51,7 @@ data class EstadoExportar(
     val exportando: Boolean = false,
     val pedirDestino: String? = null,
     val guardado: String? = null,
+    val ultimoDestino: Uri? = null,
     val error: Boolean = false,
     val irASinConexion: Boolean = false,
     val sinSesion: Boolean = false
@@ -144,7 +145,7 @@ class ExportarReporteViewModel(
             try {
                 val texto = armarReporte(tipo, alcance)
                 escritor.escribir(destino, texto)
-                _estado.update { it.copy(exportando = false, guardado = nombreEnCurso) }
+                _estado.update { it.copy(exportando = false, guardado = nombreEnCurso, ultimoDestino = destino) }
             } catch (e: SinConexionException) {
                 _estado.update { it.copy(exportando = false, irASinConexion = true) }
             } catch (e: ReglaNegocioException) {

@@ -14,21 +14,25 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * Estado de P01.
- * @param irASinConexion true = la pantalla debe navegar a P16 (se apaga apenas lo hace).
+ * Estado de P01 Login.
+ * @param irASinConexion true = la pantalla debe navegar a P16.
  * @param conexionSimuladaCortada true = el interruptor oculto de la demo está activo.
  */
 data class EstadoLogin(
     val cargando: Boolean = true,
     val usuarios: List<Usuario> = emptyList(),
-    val seleccionadoId: String? = null,
+    val usuarioIdInput: String = "",
+    val passwordInput: String = "",
+    val errorUsuario: Boolean = false,
+    val errorPassword: Boolean = false,
+    val mensajeError: String? = null,
     val irASinConexion: Boolean = false,
     val conexionSimuladaCortada: Boolean = false
 )
 
 /**
  * @param simulador solo para la demo: permite cortar la conexión simulada con el
- * interruptor oculto. Con el futuro repositorio remoto, este parámetro desaparece.
+ * interruptor oculto.
  */
 class LoginViewModel(
     private val repositorio: InventarioRepository,
@@ -50,7 +54,6 @@ class LoginViewModel(
 
     private fun cargarUsuarios() {
         viewModelScope.launch {
-            // update{} copia el estado actual cambiando solo lo indicado.
             _estado.update { it.copy(cargando = true) }
             try {
                 val usuarios = repositorio.obtenerUsuariosDemo()
@@ -67,7 +70,7 @@ class LoginViewModel(
         _estado.update { it.copy(irASinConexion = false) }
     }
 
-    /** La pantalla lo llama cada vez que vuelve a mostrarse (por ejemplo, tras "Reintentar"). */
+    /** La pantalla lo llama cada vez que vuelve a mostrarse. */
     fun reintentarSiHaceFalta() {
         if (reintentarAlVolver) {
             reintentarAlVolver = false
@@ -75,14 +78,63 @@ class LoginViewModel(
         }
     }
 
-    fun seleccionar(usuario: Usuario) {
-        _estado.update { it.copy(seleccionadoId = usuario.id) }
+    fun actualizarUsuarioId(id: String) {
+        _estado.update { 
+            it.copy(
+                usuarioIdInput = id,
+                errorUsuario = false,
+                mensajeError = null
+            ) 
+        }
     }
 
-    /** Guarda al usuario elegido en la sesión. Devuelve false si no hay ninguno elegido. */
+    fun actualizarPassword(password: String) {
+        val filtrado = password.filter { it.isDigit() }.take(6)
+        _estado.update { 
+            it.copy(
+                passwordInput = filtrado,
+                errorPassword = false,
+                mensajeError = null
+            ) 
+        }
+    }
+
+    /** Valida el ID de usuario y la contraseña de 6 dígitos. Inicia sesión si son correctos. */
     fun ingresar(): Boolean {
         val actual = _estado.value
-        val usuario = actual.usuarios.find { it.id == actual.seleccionadoId } ?: return false
+        val idTrim = actual.usuarioIdInput.trim()
+        val usuario = actual.usuarios.find { it.id.equals(idTrim, ignoreCase = true) }
+
+        if (usuario == null) {
+            _estado.update {
+                it.copy(
+                    errorUsuario = true,
+                    mensajeError = "Usuario no encontrado"
+                )
+            }
+            return false
+        }
+
+        if (actual.passwordInput.length != 6) {
+            _estado.update {
+                it.copy(
+                    errorPassword = true,
+                    mensajeError = "La contraseña debe tener 6 dígitos"
+                )
+            }
+            return false
+        }
+
+        if (actual.passwordInput != usuario.password) {
+            _estado.update {
+                it.copy(
+                    errorPassword = true,
+                    mensajeError = "Contraseña incorrecta"
+                )
+            }
+            return false
+        }
+
         sesionRepository.iniciarSesion(usuario)
         return true
     }

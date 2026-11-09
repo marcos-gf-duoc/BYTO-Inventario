@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     // Room: base de datos local (SQLite). room-ktx agrega el soporte de corrutinas (withTransaction).
@@ -60,6 +61,7 @@ dependencies {
     // ML Kit con el modelo incluido en la app: reconoce el EAN-13 sin conexión ni Google Play.
     implementation(libs.mlkit.barcode.scanning)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

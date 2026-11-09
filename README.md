@@ -20,14 +20,15 @@ Tomadas en el emulador con los datos sintéticos; están en [`docs/capturas/`](d
 
 | Pantalla | Capturas |
 |---|---|
-| P01 Login | [Elegir usuario](docs/capturas/P01_login.png) |
+| P00 Splash Screen | Animación de carga inicial y SplashScreen API |
+| P01 Login | Login con ID de usuario y PIN de 6 dígitos |
 | P08 Buscar por código | [Resultado](docs/capturas/P08_buscar_resultado.png) · [Error de validación](docs/capturas/P08_buscar_error_validacion.png) |
 | P09 Registrar movimiento | [Stock resultante](docs/capturas/P09_registrar_stock_resultante.png) · [Error de validación](docs/capturas/P09_registrar_error_validacion.png) |
 | P11 Alertas | [Alertas abiertas](docs/capturas/P11_alertas.png) |
 | P12 Declarar reposición | [Campos obligatorios](docs/capturas/P12_reposicion_campos_obligatorios.png) · [Reposición ya abierta](docs/capturas/P12_reposicion_ya_abierta.png) |
 | P13 Historial | [Movimientos](docs/capturas/P13_historial.png) · [Error de rango de fechas](docs/capturas/P13_historial_error_rango.png) |
 | P14 Ubicaciones | [Listado](docs/capturas/P14_ubicaciones.png) · [Confirmar desactivación](docs/capturas/P14_ubicaciones_confirmar.png) |
-| P15 Exportar reporte | [Formulario](docs/capturas/P15_exportar.png) · [Error de validación](docs/capturas/P15_exportar_error_validacion.png) |
+| P15 Exportar reporte | [Formulario](docs/capturas/P15_exportar.png) · [Compartir CSV](docs/capturas/P15_exportar_error_validacion.png) |
 | P17 Escanear código | [Sin permiso de cámara](docs/capturas/P17_escaner_sin_permiso.png) · [Vista de la cámara (emulador)](docs/capturas/P17_escaner_camara_emulador.png) |
 
 ---
@@ -42,7 +43,7 @@ Tomadas en el emulador con los datos sintéticos; están en [`docs/capturas/`](d
 | Navegación | Navigation Compose |
 | Estado | StateFlow + ViewModel |
 | Persistencia local | Room (SQLite), con KSP |
-| Cámara y escáner | CameraX + ML Kit Barcode Scanning (modelo incluido, funciona sin conexión) |
+| Cámara y escáner | CameraX + ML Kit Barcode Scanning (compatible con todos los formatos: EAN, QR, Code 128, etc.) |
 | Inyección de dependencias | Manual (AppContainer) |
 | Pruebas | JUnit (unitarias) y AndroidJUnit4 (instrumentadas, con Room en memoria) |
 | Control de versiones | Git + GitHub |
@@ -57,7 +58,7 @@ com.byto.inventario
 ├── domain/              Lógica pura con pruebas: ReglasInventario, ValidadorEan, Permisos,
 │                        Fechas, Regiones, ValidacionReposicion, ReporteCsv
 ├── data/
-│   ├── model/           Modelos (Producto, Existencia, Movimiento, Alerta, Ubicacion, Usuario…)
+│   ├── model/           Modelos (Producto, Existencia, Movimiento, Alerta, Ubicacion, Usuario con PIN…)
 │   ├── repository/      Contratos (InventarioRepository, SesionRepository, SimuladorConexion)
 │   ├── local/           Room: BytoDatabase, entidades, DAOs y LocalInventarioRepository
 │   └── fake/            Datos sintéticos y repositorio en memoria (para pruebas)
@@ -66,7 +67,7 @@ com.byto.inventario
     ├── theme/           Colores y tipografía accesibles
     ├── navigation/      Rutas, NavHost y SesionViewModel
     ├── components/      Componentes reutilizables (chips de estado, MensajeError…)
-    └── screens/         Una carpeta por pantalla, con su Pantalla y su ViewModel
+    └── screens/         Una carpeta por pantalla (incluyendo splash y login), con su Pantalla y ViewModel
 ```
 
 ---
@@ -77,7 +78,7 @@ com.byto.inventario
 |---|---|
 | **Operador** | Seleccionar su tienda, escanear o buscar productos, registrar movimientos (entrada, salida, ajuste, conteo) y ver su historial |
 | **Encargado de bodega** | Consultar stock, ver alertas, revisar descalces, declarar reposiciones y ver el historial de sus ubicaciones |
-| **Gerente** | Tablero analítico, alertas e historial de todas las ubicaciones, administrar ubicaciones y exportar reportes |
+| **Gerente** | Tablero analítico, alertas e historial de todas las ubicaciones, administrar ubicaciones y exportar/compartir reportes |
 
 ---
 
@@ -85,7 +86,8 @@ com.byto.inventario
 
 | Código | Pantalla |
 |---|---|
-| P01 | Login (selección de usuario simulado) |
+| P00 | Splash Screen: pantalla de carga inicial animada en Jetpack Compose |
+| P01 | Login profesional con credenciales (ID de usuario y contraseña de 6 dígitos / PIN) |
 | P02 | Selección de ubicación |
 | P03 | Inicio Operador |
 | P04 | Inicio Encargado |
@@ -99,20 +101,20 @@ com.byto.inventario
 | P12 | Declarar reposición (Encargado), con validación por campo |
 | P13 | Historial / auditoría con filtros por ubicación, fechas, operador y tipo |
 | P14 | Administrar ubicaciones (Gerente): activar o desactivar tiendas y bodegas |
-| P15 | Exportar reporte (Gerente): stock, movimientos o alertas en CSV compatible con Excel |
+| P15 | Exportar reporte (Gerente): stock, movimientos o alertas en CSV con opción de compartir |
 | P16 | Sin conexión |
-| P17 | Escanear código: lectura de EAN-13 con la cámara (CameraX + ML Kit) y vibración al leer |
+| P17 | Escanear código: lectura universal de códigos de barras y QR (CameraX + ML Kit) y vibración al leer |
 
 ### Funcionalidades transversales implementadas
 
 | Funcionalidad | Detalle |
 |---|---|
 | Persistencia local | Room: movimientos, alertas y estado de las ubicaciones se conservan al cerrar la app |
-| Recursos nativos | Cámara (escáner, con manejo del permiso), almacenamiento de archivos (reporte CSV con "Guardar como") y vibración |
-| Formularios validados | Errores por campo con ícono y texto en todos los formularios (P08, P09, P12, P13 y P15); reglas en `domain/` con pruebas unitarias |
-| Animaciones | Transiciones entre pantallas, resultado de búsqueda (P08), stock resultante (P09), confirmación (P10), filas de listas (P11, P13), estado de ubicaciones (P14), marco del escáner (P17) y mensajes de error |
+| Recursos nativos | Cámara (escáner universal), almacenamiento ("Guardar como"), compartir archivos (`Intent.ACTION_SEND` para CSV) y vibración |
+| Formularios validados | Errores por campo con ícono y texto en todos los formularios (P01, P08, P09, P12, P13 y P15); reglas en `domain/` con pruebas unitarias |
+| Animaciones | Transiciones entre pantallas, splash de carga (P00), resultado de búsqueda (P08), stock resultante (P09), confirmación (P10), filas de listas (P11, P13), estado de ubicaciones (P14), marco del escáner (P17) y mensajes de error |
 | Accesibilidad | Botones de 48 dp o más, contraste ≥ 4,5:1, estados siempre con texto además del color y descripciones para TalkBack |
-| Privacidad | Solo IDs anonimizados (OP-001, EB-001…); los datos no se respaldan en la nube; únicos permisos: cámara y vibración |
+| Privacidad | Autenticación con ID y PIN de 6 dígitos; los datos no se respaldan en la nube; únicos permisos: cámara y vibración |
 
 ---
 
@@ -121,17 +123,17 @@ com.byto.inventario
 En el primer arranque la app guarda en Room estos datos ficticios; desde ahí, cada cambio queda guardado:
 
 - **13 ubicaciones**: Casa Matriz, 3 bodegas regionales y 9 tiendas (Santiago, La Serena, Concepción)
-- **4 usuarios simulados**: 2 operadores, 1 encargado de bodega y 1 gerente
+- **4 usuarios simulados con PIN de 6 dígitos**: 2 operadores, 1 encargado de bodega y 1 gerente
 - **25 productos** en 5 categorías: Tecnología, Deportes, Ropa Hombre, Ropa Mujer, Muebles
 - **300 existencias** (12 ubicaciones × 25 productos)
 - **6 movimientos históricos** y **7 alertas iniciales** preconfiguradas
 
-| Usuario | Perfil | Ubicaciones |
-|---|---|---|
-| OP-001 · Operario Santiago | Operador | T-ST-1, T-ST-2, T-ST-3 |
-| OP-002 · Operario La Serena | Operador | T-LS-1, T-LS-2, T-LS-3 |
-| EB-001 · Encargado Bodega Santiago | Encargado de bodega | B-ST-1 y consulta de T-ST-1 a T-ST-3 |
-| GE-001 · Gerente BYTO | Gerente | Todas |
+| Usuario | Perfil | PIN | Ubicaciones |
+|---|---|---|---|
+| OP-001 · Operario Santiago | Operador | 123456 | T-ST-1, T-ST-2, T-ST-3 |
+| OP-002 · Operario La Serena | Operador | 123457 | T-LS-1, T-LS-2, T-LS-3 |
+| EB-001 · Encargado Bodega Santiago | Encargado de bodega | 123458 | B-ST-1 y consulta de T-ST-1 a T-ST-3 |
+| GE-001 · Gerente BYTO | Gerente | 123459 | Todas |
 
 ---
 
@@ -157,11 +159,11 @@ Umbrales de stock: Normal ≥ 10 · Bajo 5–9 · Crítico 1–4 · Sin stock 0.
 2. Abrir la carpeta en **Android Studio** (una versión reciente, compatible con Android Gradle Plugin 9.4).
 3. Esperar a que termine la sincronización de Gradle (o usar **File › Sync Project with Gradle Files**).
 4. Elegir un emulador o teléfono con **Android 8.0 (API 26)** o superior.
-5. Ejecutar con **Run › Run 'app'** y elegir un usuario en el login.
+5. Ejecutar con **Run › Run 'app'** y autenticarse con el ID de usuario y PIN de 6 dígitos en el login (P01).
 
 > No se requiere backend, cuentas ni claves.
 
-**Probar el escáner (P17):** abre `docs/anexos/codigos_prueba_EAN13.html` en el navegador (o imprímelo al 100 %) y escanea cualquiera de los 25 códigos desde Buscar por código › Escanear con cámara. En el emulador, configura la cámara trasera como *Webcam0* en el Device Manager, o usa un teléfono real.
+**Probar el escáner (P17):** abre `docs/anexos/codigos_prueba_EAN13.html` en el navegador (o imprímelo al 100 %) y escanea cualquiera de los 25 códigos (o cualquier código QR/barras real) desde Buscar por código › Escanear con cámara. En el emulador, configura la cámara trasera como *Webcam0* en el Device Manager, o usa un teléfono real.
 
 **Ver la pantalla Sin conexión (P16):** en el login, mantén presionado el título "BYTO" para cortar la conexión simulada; repite el gesto para restablecerla.
 
@@ -170,7 +172,7 @@ Umbrales de stock: Normal ≥ 10 · Bajo 5–9 · Crítico 1–4 · Sin stock 0.
 ### Pruebas
 
 ```bash
-./gradlew testDebugUnitTest            # pruebas unitarias (reglas del dominio y repositorio en memoria)
+./gradlew testDebugUnitTest            # pruebas unitarias (reglas del dominio, repositorio en memoria y login)
 ./gradlew connectedDebugAndroidTest    # pruebas instrumentadas (Room y lector de códigos), con un emulador encendido
 ```
 

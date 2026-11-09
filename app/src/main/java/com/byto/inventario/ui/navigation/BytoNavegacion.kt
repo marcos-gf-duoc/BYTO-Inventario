@@ -49,6 +49,7 @@ import com.byto.inventario.ui.screens.movimiento.PantallaRegistrarMovimiento
 import com.byto.inventario.ui.screens.reposicion.PantallaDeclararReposicion
 import com.byto.inventario.ui.screens.seleccion.PantallaSeleccionUbicacion
 import com.byto.inventario.ui.screens.sinconexion.PantallaSinConexion
+import com.byto.inventario.ui.screens.splash.PantallaSplash
 import com.byto.inventario.ui.screens.ubicaciones.PantallaAdministrarUbicaciones
 
 /**
@@ -146,7 +147,7 @@ fun BytoNavegacion(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Pantalla.LOGIN.ruta,
+            startDestination = Pantalla.SPLASH.ruta,
             modifier = Modifier.padding(innerPadding),
             // Transiciones entre pantallas: al avanzar, la nueva entra desde la derecha;
             // al volver ("pop"), la anterior regresa desde la izquierda. Así se entiende
@@ -156,6 +157,11 @@ fun BytoNavegacion(
             popEnterTransition = { fadeIn(tween(DURACION_TRANSICION)) + slideInHorizontally(tween(DURACION_TRANSICION)) { -it / 8 } },
             popExitTransition = { fadeOut(tween(DURACION_TRANSICION)) + slideOutHorizontally(tween(DURACION_TRANSICION)) { it / 8 } }
         ) {
+            composable(Pantalla.SPLASH.ruta) {
+                PantallaSplash(
+                    alTerminar = { navController.navegarLimpiandoPila(Pantalla.LOGIN) }
+                )
+            }
             composable(Pantalla.LOGIN.ruta) {
                 PantallaLogin(
                     alIngresar = { navController.navigate(Pantalla.SELECCION_UBICACION.ruta) },

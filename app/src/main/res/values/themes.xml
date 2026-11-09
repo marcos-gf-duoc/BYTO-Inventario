@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Tema oficial para el Splash Screen (Android 12+ y retrocompatible) -->
+    <style name="Theme.BYTO.Splash" parent="Theme.SplashScreen">
+        <!-- Color de fondo del splash (Morado de BYTO) -->
+        <item name="windowSplashScreenBackground">#5B3E9E</item>
+        <!-- Icono centrado en el splash -->
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <!-- Tema que se aplica al finalizar el splash (la app normal) -->
+        <item name="postSplashScreenTheme">@style/Theme.BYTO</item>
+    </style>
 
     <style name="Theme.BYTO" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

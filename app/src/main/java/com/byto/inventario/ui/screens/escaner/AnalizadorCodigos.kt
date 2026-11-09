@@ -49,10 +49,10 @@ class AnalizadorCodigos(
     }
 
     companion object {
-        /** Lector de ML Kit configurado solo para EAN-13. Las pruebas usan esta misma configuración. */
+        /** Lector de ML Kit configurado para leer todos los formatos (EAN, QR, Code 128, UPC, etc.). */
         fun crearLector(): BarcodeScanner = BarcodeScanning.getClient(
             BarcodeScannerOptions.Builder()
-                .setBarcodeFormats(Barcode.FORMAT_EAN_13)
+                .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
                 .build()
         )
     }
