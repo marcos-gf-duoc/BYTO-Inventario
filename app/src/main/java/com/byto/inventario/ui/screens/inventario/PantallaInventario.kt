@@ -50,7 +50,7 @@ import com.byto.inventario.ui.theme.BYTOTheme
 
 /**
  * P06 Inventario de la ubicación activa. [alAbrirDetalle] recibe el código interno;
- * [alBuscarPorCodigo] abre P08 (disponible para todos los perfiles).
+ * [alBuscarPorCodigo] abre P08.
  */
 @Composable
 fun PantallaInventario(
@@ -62,7 +62,6 @@ fun PantallaInventario(
 ) {
     val estado by viewModel.estado.collectAsState()
 
-    // Corre cada vez que la pantalla aparece: al volver a ella, el ViewModel recarga los datos.
     LaunchedEffect(Unit) { viewModel.alMostrarse() }
     LaunchedEffect(estado.irASinConexion) {
         if (estado.irASinConexion) {
@@ -78,6 +77,7 @@ fun PantallaInventario(
         estado = estado,
         alCambiarBusqueda = viewModel::cambiarBusqueda,
         alCambiarFiltro = viewModel::cambiarFiltro,
+        alCambiarCategoria = viewModel::cambiarCategoria,
         alLimpiar = viewModel::limpiar,
         alAbrirDetalle = alAbrirDetalle,
         alBuscarPorCodigo = alBuscarPorCodigo
@@ -89,11 +89,11 @@ private fun ContenidoInventario(
     estado: EstadoInventario,
     alCambiarBusqueda: (String) -> Unit,
     alCambiarFiltro: (EstadoStock?) -> Unit,
+    alCambiarCategoria: (String?) -> Unit,
     alLimpiar: () -> Unit,
     alAbrirDetalle: (String) -> Unit,
     alBuscarPorCodigo: () -> Unit
 ) {
-    // Para cerrar el teclado al tocar "Buscar" en él.
     val foco = LocalFocusManager.current
 
     Column(
@@ -108,8 +108,6 @@ private fun ContenidoInventario(
             label = { Text(stringResource(R.string.inventario_buscar)) },
             singleLine = true,
             leadingIcon = { Icon(painterResource(R.drawable.ic_buscar), contentDescription = null) },
-            // A la derecha: borrar (solo si hay texto) y abrir la búsqueda por código de barras (P08).
-            // Cada IconButton mide 48 dp y lleva su descripción para TalkBack.
             trailingIcon = {
                 Row {
                     if (estado.busqueda.isNotEmpty()) {
@@ -136,6 +134,14 @@ private fun ContenidoInventario(
         )
 
         FiltrosEstado(seleccionado = estado.filtro, alElegir = alCambiarFiltro)
+
+        if (estado.categoriasDisponibles.isNotEmpty()) {
+            FiltrosCategoria(
+                categorias = estado.categoriasDisponibles,
+                seleccionada = estado.categoriaFiltro,
+                alElegir = alCambiarCategoria
+            )
+        }
 
         when {
             estado.cargando -> IndicadorCarga()
@@ -166,12 +172,10 @@ private fun ContenidoInventario(
 }
 
 /**
- * Chips Todos / Normal / Bajo / Crítico / Sin stock. El elegido muestra un ✓ además
- * del color, y Material le da un área táctil de 48 dp aunque se vea más bajo.
+ * Chips Todos / Normal / Bajo / Crítico / Sin stock.
  */
 @Composable
 private fun FiltrosEstado(seleccionado: EstadoStock?, alElegir: (EstadoStock?) -> Unit) {
-    // null representa "Todos".
     val opciones: List<EstadoStock?> = listOf(null) + EstadoStock.entries
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         opciones.forEach { opcion ->
@@ -198,7 +202,41 @@ private fun FiltrosEstado(seleccionado: EstadoStock?, alElegir: (EstadoStock?) -
     }
 }
 
-/** Fila tocable: nombre, código y unidades a la izquierda; estado (con texto) a la derecha. */
+/**
+ * Chips de categorías (Tecnología, Deportes, Ropa Hombre, etc.).
+ */
+@Composable
+private fun FiltrosCategoria(
+    categorias: List<String>,
+    seleccionada: String?,
+    alElegir: (String?) -> Unit
+) {
+    val opciones: List<String?> = listOf(null) + categorias
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        opciones.forEach { categoria ->
+            val elegida = categoria == seleccionada
+            FilterChip(
+                selected = elegida,
+                onClick = { alElegir(categoria) },
+                label = {
+                    Text(categoria ?: "Todas las categorías")
+                },
+                leadingIcon = if (elegida) {
+                    {
+                        Icon(
+                            painterResource(R.drawable.ic_check),
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else {
+                    null
+                }
+            )
+        }
+    }
+}
+
 @Composable
 private fun FilaExistencia(detalle: ExistenciaDetalle, alTocar: () -> Unit) {
     Card(
@@ -215,7 +253,6 @@ private fun FilaExistencia(detalle: ExistenciaDetalle, alTocar: () -> Unit) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = detalle.producto.nombre, style = MaterialTheme.typography.titleMedium)
-                // "TE-01 · 18 u": código interno y unidades en stock.
                 Text(
                     text = stringResource(
                         R.string.inventario_codigo_unidades, detalle.producto.codigoInterno, detalle.existencia.stock
@@ -260,9 +297,15 @@ private fun ContenidoInventarioPreview() {
     )
     BYTOTheme {
         ContenidoInventario(
-            estado = EstadoInventario(cargando = false, todas = lista, resultados = lista),
+            estado = EstadoInventario(
+                cargando = false,
+                todas = lista,
+                resultados = lista,
+                categoriasDisponibles = listOf("Deportes", "Ropa Hombre")
+            ),
             alCambiarBusqueda = {},
             alCambiarFiltro = {},
+            alCambiarCategoria = {},
             alLimpiar = {},
             alAbrirDetalle = {},
             alBuscarPorCodigo = {}

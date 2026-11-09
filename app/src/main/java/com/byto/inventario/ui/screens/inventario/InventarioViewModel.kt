@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
  * @param todas todas las existencias de la ubicación activa (se cargan una vez).
  * @param resultados las que cumplen la búsqueda y el filtro; es lo que se dibuja.
  * @param filtro estado elegido en los chips; null = "Todos".
+ * @param categoriaFiltro categoría elegida en los chips; null = "Todas".
  */
 data class EstadoInventario(
     val cargando: Boolean = true,
@@ -29,18 +30,13 @@ data class EstadoInventario(
     val resultados: List<ExistenciaDetalle> = emptyList(),
     val busqueda: String = "",
     val filtro: EstadoStock? = null,
+    val categoriaFiltro: String? = null,
+    val categoriasDisponibles: List<String> = emptyList(),
     val error: Boolean = false,
     val irASinConexion: Boolean = false,
     val sinSesion: Boolean = false
 )
 
-/**
- * Se carga el inventario completo una vez y se filtra en memoria: con 25 productos
- * es instantáneo y evita una llamada (con su espera) por cada letra escrita.
- *
- * @param savedStateHandle trae los argumentos de la ruta; aquí, el filtro inicial
- * cuando se llega desde las tarjetas del inicio ("inventario?estado=BAJO").
- */
 class InventarioViewModel(
     private val repositorio: InventarioRepository,
     private val sesionRepository: SesionRepository,
@@ -49,14 +45,12 @@ class InventarioViewModel(
 
     private val _estado = MutableStateFlow(
         EstadoInventario(
-            // runCatching evita un cierre de la app si el texto no es un estado válido.
             filtro = savedStateHandle.get<String>(Pantalla.ARG_ESTADO)
                 ?.let { runCatching { EstadoStock.valueOf(it) }.getOrNull() }
         )
     )
     val estado: StateFlow<EstadoInventario> = _estado.asStateFlow()
 
-    /** false hasta la primera vez que la pantalla se muestra (esa carga ya la hizo init). */
     private var yaSeMostro = false
 
     init {
@@ -73,7 +67,8 @@ class InventarioViewModel(
             _estado.update { it.copy(cargando = it.error, error = false) }
             try {
                 val existencias = repositorio.obtenerExistencias(ubicacion.id)
-                actualizar { it.copy(cargando = false, todas = existencias) }
+                val categorias = existencias.map { it.producto.categoria }.distinct().sorted()
+                actualizar { it.copy(cargando = false, todas = existencias, categoriasDisponibles = categorias) }
             } catch (e: SinConexionException) {
                 _estado.update { it.copy(irASinConexion = true) }
             } catch (e: ReglaNegocioException) {
@@ -90,20 +85,21 @@ class InventarioViewModel(
         actualizar { it.copy(filtro = filtro) }
     }
 
-    fun limpiar() {
-        actualizar { it.copy(busqueda = "", filtro = null) }
+    fun cambiarCategoria(categoria: String?) {
+        actualizar { it.copy(categoriaFiltro = categoria) }
     }
 
-    /**
-     * Aplica un cambio y recalcula [EstadoInventario.resultados] en el mismo paso,
-     * para que la lista nunca quede desfasada de la búsqueda o el filtro.
-     */
+    fun limpiar() {
+        actualizar { it.copy(busqueda = "", filtro = null, categoriaFiltro = null) }
+    }
+
     private fun actualizar(cambio: (EstadoInventario) -> EstadoInventario) {
         _estado.update { actual ->
             val nuevo = cambio(actual)
             nuevo.copy(
                 resultados = nuevo.todas.filter { detalle ->
                     (nuevo.filtro == null || detalle.estado == nuevo.filtro) &&
+                        (nuevo.categoriaFiltro == null || detalle.producto.categoria == nuevo.categoriaFiltro) &&
                         BusquedaTexto.coincide(detalle.producto, nuevo.busqueda)
                 }
             )
@@ -114,10 +110,6 @@ class InventarioViewModel(
         _estado.update { it.copy(irASinConexion = false) }
     }
 
-    /**
-     * La pantalla lo llama cada vez que vuelve a verse. La primera vez no hace nada (init ya
-     * cargó); las siguientes recarga, por ejemplo al volver de P16 o tras registrar un movimiento.
-     */
     fun alMostrarse() {
         if (yaSeMostro) cargar() else yaSeMostro = true
     }
