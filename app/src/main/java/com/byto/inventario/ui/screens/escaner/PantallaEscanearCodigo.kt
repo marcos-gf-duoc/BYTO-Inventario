@@ -41,6 +41,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -51,8 +52,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -80,12 +83,6 @@ import kotlin.math.roundToInt
 /**
  * P17 Escanear código. [alLeerCodigo] recibe el EAN-13 leído (P08 lo busca);
  * [alEscribirCodigo] vuelve a P08 para escribirlo a mano.
- *
- * Flujo del permiso de cámara (obligatorio en Android para usarla):
- * 1. Si ya estaba concedido, se abre la cámara de inmediato.
- * 2. Si no, Android muestra su diálogo "¿Permitir que BYTO tome fotos?".
- * 3. Si el usuario lo niega, se explica para qué sirve y se ofrecen tres salidas:
- *    pedirlo otra vez, abrir los ajustes de la app o escribir el código a mano.
  */
 @Composable
 fun PantallaEscanearCodigo(
@@ -96,7 +93,6 @@ fun PantallaEscanearCodigo(
     val estado by viewModel.estado.collectAsState()
     val contexto = LocalContext.current
 
-    // Lanzador del diálogo de permiso del sistema; su respuesta llega a la lambda.
     val pedirPermiso = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { concedido -> viewModel.alResolverPermiso(concedido) }
@@ -108,7 +104,6 @@ fun PantallaEscanearCodigo(
             pedirPermiso.launch(Manifest.permission.CAMERA)
         }
     }
-    // ON_RESUME: al volver de los ajustes de Android, el usuario pudo haber dado el permiso.
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         if (estado.permiso == PermisoCamara.DENEGADO && tienePermisoCamara(contexto)) {
             viewModel.alResolverPermiso(true)
@@ -119,13 +114,14 @@ fun PantallaEscanearCodigo(
     }
 
     when (estado.permiso) {
-        // Mientras Android muestra su diálogo, la pantalla queda en negro (como la cámara apagada).
         PermisoCamara.SIN_CONSULTAR -> Box(Modifier.fillMaxSize().background(Color.Black))
         PermisoCamara.CONCEDIDO -> ContenidoCamara(
             codigoInvalido = estado.codigoInvalido,
             camaraNoDisponible = estado.camaraNoDisponible,
+            linternaEncendida = estado.linternaEncendida,
             alDetectar = viewModel::alDetectarCodigo,
             alFallarCamara = viewModel::alFallarCamara,
+            alAlternarLinterna = viewModel::alternarLinterna,
             alEscribirCodigo = alEscribirCodigo
         )
         PermisoCamara.DENEGADO -> ContenidoSinPermiso(
@@ -140,10 +136,6 @@ private fun tienePermisoCamara(contexto: Context): Boolean =
     ContextCompat.checkSelfPermission(contexto, Manifest.permission.CAMERA) ==
         PackageManager.PERMISSION_GRANTED
 
-/**
- * Si el usuario negó el permiso dos veces, Android ya no vuelve a mostrar el diálogo:
- * la única forma de darlo es desde los ajustes de la app.
- */
 private fun abrirAjustesDeLaApp(contexto: Context) {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         .setData(Uri.fromParts("package", contexto.packageName, null))
@@ -154,8 +146,10 @@ private fun abrirAjustesDeLaApp(contexto: Context) {
 private fun ContenidoCamara(
     codigoInvalido: Boolean,
     camaraNoDisponible: Boolean,
+    linternaEncendida: Boolean,
     alDetectar: (String) -> Unit,
     alFallarCamara: () -> Unit,
+    alAlternarLinterna: () -> Unit,
     alEscribirCodigo: () -> Unit
 ) {
     Box(
@@ -187,11 +181,27 @@ private fun ContenidoCamara(
         VistaCamara(
             alDetectar = alDetectar,
             alFallar = alFallarCamara,
+            linternaEncendida = linternaEncendida,
             modifier = Modifier.fillMaxSize()
         )
         MarcoGuia(Modifier.align(Alignment.Center))
 
-        // Franja inferior oscura: el texto blanco se lee bien sobre cualquier imagen de la cámara.
+        // Botón flotante para la linterna (flash)
+        FloatingActionButton(
+            onClick = alAlternarLinterna,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(24.dp),
+            containerColor = if (linternaEncendida) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            Icon(
+                painterResource(R.drawable.ic_flash),
+                contentDescription = "Linterna",
+                tint = if (linternaEncendida) Color.Yellow else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        // Franja inferior oscura
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -201,7 +211,6 @@ private fun ContenidoCamara(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Aparece y desaparece con un fundido, para que se note el cambio.
             AnimatedVisibility(visible = codigoInvalido, enter = fadeIn(), exit = fadeOut()) {
                 Text(
                     text = stringResource(R.string.escanear_codigo_invalido),
@@ -223,29 +232,28 @@ private fun ContenidoCamara(
     }
 }
 
-/**
- * La vista de CameraX (PreviewView) es una View clásica de Android, no un Composable:
- * AndroidView la inserta dentro de Compose.
- *
- * La cámara se "ata" al ciclo de vida de la pantalla (bindToLifecycle): CameraX la
- * enciende cuando la pantalla está visible y la apaga sola al salir de ella.
- */
 @Composable
 private fun VistaCamara(
     alDetectar: (String) -> Unit,
     alFallar: () -> Unit,
+    linternaEncendida: Boolean,
     modifier: Modifier = Modifier
 ) {
     val contexto = LocalContext.current
     val cicloDeVida = LocalLifecycleOwner.current
     val descripcion = stringResource(R.string.escanear_cd_camara)
     val vistaPrevia = remember { PreviewView(contexto) }
-    // rememberUpdatedState: el analizador, creado una sola vez, siempre llama a la versión más nueva.
     val detectar by rememberUpdatedState(alDetectar)
     val fallar by rememberUpdatedState(alFallar)
+    var cameraInstance by remember { mutableStateOf<androidx.camera.core.Camera?>(null) }
+
+    LaunchedEffect(linternaEncendida) {
+        try {
+            cameraInstance?.cameraControl?.enableTorch(linternaEncendida)
+        } catch (e: Exception) {}
+    }
 
     DisposableEffect(cicloDeVida) {
-        // Hilo propio para analizar imágenes, así el hilo principal (la interfaz) no se traba.
         val hiloAnalisis = Executors.newSingleThreadExecutor()
         val analizador = AnalizadorCodigos { codigo -> detectar(codigo) }
         val futuroProveedor = ProcessCameraProvider.getInstance(contexto)
@@ -258,26 +266,29 @@ private fun VistaCamara(
                 val vista = Preview.Builder().build().also {
                     it.surfaceProvider = vistaPrevia.surfaceProvider
                 }
-                // KEEP_ONLY_LATEST: si el análisis va lento, se descartan los cuadros viejos.
                 val analisis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                     .also { it.setAnalyzer(hiloAnalisis, analizador) }
-                // Cámara trasera si existe; si no (algunas tablets), la frontal.
                 val selector = if (camaras.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
                     CameraSelector.DEFAULT_BACK_CAMERA
                 } else {
                     CameraSelector.DEFAULT_FRONT_CAMERA
                 }
                 camaras.unbindAll()
-                camaras.bindToLifecycle(cicloDeVida, selector, vista, analisis)
+                cameraInstance = camaras.bindToLifecycle(cicloDeVida, selector, vista, analisis)
+                try {
+                    cameraInstance?.cameraControl?.enableTorch(linternaEncendida)
+                } catch (e: Exception) {}
             } catch (e: Exception) {
-                // Sin cámara o cámara ocupada por otra app: se ofrece escribir el código.
                 fallar()
             }
         }, ContextCompat.getMainExecutor(contexto))
 
         onDispose {
+            try {
+                cameraInstance?.cameraControl?.enableTorch(false)
+            } catch (e: Exception) {}
             proveedor?.unbindAll()
             analizador.cerrar()
             hiloAnalisis.shutdown()
@@ -290,14 +301,9 @@ private fun VistaCamara(
     )
 }
 
-/**
- * Rectángulo que indica dónde poner el código, con una línea que lo recorre de arriba
- * abajo. La animación muestra que el escáner está activo. Es decorativo (sin descripción).
- */
 @Composable
 private fun MarcoGuia(modifier: Modifier = Modifier) {
     val transicion = rememberInfiniteTransition(label = "marcoGuia")
-    // Avance de la línea: de 0 (arriba) a 1 (abajo) y de vuelta, sin fin.
     val avance by transicion.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
@@ -310,8 +316,6 @@ private fun MarcoGuia(modifier: Modifier = Modifier) {
             .border(3.dp, Color.White, RoundedCornerShape(16.dp))
             .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
-        // offset con lambda: el avance se lee al ubicar la línea, no al recomponer. Así la
-        // animación (que cambia en cada cuadro) no obliga a redibujar todo el marco.
         val recorrido = maxHeight - 3.dp
         Box(
             modifier = Modifier
@@ -337,7 +341,6 @@ private fun ContenidoSinPermiso(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
     ) {
-        // Decorativo: el título dice lo mismo en texto.
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -372,7 +375,6 @@ private fun ContenidoSinPermiso(
         }
         OutlinedButton(
             onClick = alAbrirAjustes,
-            // Texto en el color de marca, como los demás botones con borde de la app.
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
             modifier = Modifier
                 .fillMaxWidth()

@@ -16,12 +16,14 @@ enum class PermisoCamara { SIN_CONSULTAR, CONCEDIDO, DENEGADO }
  * @param codigoInvalido se leyó algo que no es un EAN-13 válido; se sigue escaneando.
  * @param camaraNoDisponible el teléfono no tiene cámara o no se pudo abrir.
  * @param codigoLeido código válido ya leído: la pantalla debe devolverlo a P08 (evento).
+ * @param linternaEncendida estado del flash/linterna de la cámara.
  */
 data class EstadoEscanear(
     val permiso: PermisoCamara = PermisoCamara.SIN_CONSULTAR,
     val codigoInvalido: Boolean = false,
     val camaraNoDisponible: Boolean = false,
-    val codigoLeido: String? = null
+    val codigoLeido: String? = null,
+    val linternaEncendida: Boolean = false
 )
 
 /**
@@ -44,9 +46,6 @@ class EscanearCodigoViewModel(
     /**
      * La cámara entrega muchos cuadros por segundo, así que el mismo código puede llegar
      * varias veces: solo se usa el primero válido.
-     *
-     * Se valida con la misma regla que la búsqueda manual (dígito verificador incluido),
-     * para no aceptar una lectura dañada.
      */
     fun alDetectarCodigo(valor: String) {
         if (_estado.value.codigoLeido != null) return
@@ -60,5 +59,9 @@ class EscanearCodigoViewModel(
 
     fun alFallarCamara() {
         _estado.update { it.copy(camaraNoDisponible = true) }
+    }
+
+    fun alternarLinterna() {
+        _estado.update { it.copy(linternaEncendida = !it.linternaEncendida) }
     }
 }
