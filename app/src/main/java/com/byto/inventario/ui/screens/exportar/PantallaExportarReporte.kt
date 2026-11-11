@@ -1,8 +1,10 @@
 package com.byto.inventario.ui.screens.exportar
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +33,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SnackbarDuration
@@ -102,30 +105,43 @@ fun PantallaExportarReporte(
         if (estado.sinSesion) alSinSesion()
     }
 
-    // Confirmación visible del guardado y botón de compartir.
     val textoGuardado = estado.guardado?.let { stringResource(R.string.exportar_guardado, it) }
     val ultimoUri = estado.ultimoDestino
+    val textoCompartir = stringResource(R.string.exportar_compartir)
+    val tituloCompartir = stringResource(R.string.exportar_compartir_titulo)
+    val errorCompartir = stringResource(R.string.exportar_error_compartir)
+
+    // Compartir (recurso nativo): abre el selector de apps del sistema con el archivo recién
+    // guardado. FLAG_GRANT_READ_URI_PERMISSION le presta a la app elegida permiso de lectura
+    // solo para ese archivo. Se lanza desde la pantalla porque necesita una Activity.
+    val compartir: () -> Unit = {
+        if (ultimoUri != null) {
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/csv"
+                putExtra(Intent.EXTRA_STREAM, ultimoUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            try {
+                contexto.startActivity(Intent.createChooser(intent, tituloCompartir))
+            } catch (e: ActivityNotFoundException) {
+                // Teléfono sin ninguna app capaz de recibir el archivo: se avisa en pantalla.
+                alcance.launch { avisos.showSnackbar(errorCompartir) }
+            }
+        }
+    }
+
+    // Confirmación visible del guardado, con acceso directo a compartir. El botón fijo
+    // "Compartir el último reporte" sigue disponible cuando el aviso desaparece.
     LaunchedEffect(textoGuardado, ultimoUri) {
         if (textoGuardado != null && ultimoUri != null) {
             viewModel.avisoMostrado()
             alcance.launch {
                 val resultado = avisos.showSnackbar(
                     message = textoGuardado,
-                    actionLabel = "Compartir",
+                    actionLabel = textoCompartir,
                     duration = SnackbarDuration.Long
                 )
-                if (resultado == SnackbarResult.ActionPerformed) {
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/csv"
-                        putExtra(Intent.EXTRA_STREAM, ultimoUri)
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    }
-                    try {
-                        contexto.startActivity(Intent.createChooser(intent, "Compartir reporte CSV"))
-                    } catch (e: Exception) {
-                        // Ignorar si no hay app para compartir
-                    }
-                }
+                if (resultado == SnackbarResult.ActionPerformed) compartir()
             }
         }
     }
@@ -135,7 +151,8 @@ fun PantallaExportarReporte(
             estado = estado,
             alElegirTipo = viewModel::elegirTipo,
             alElegirAlcance = viewModel::elegirAlcance,
-            alExportar = viewModel::solicitarExportar
+            alExportar = viewModel::solicitarExportar,
+            alCompartir = compartir
         )
         SnackbarHost(avisos, modifier = Modifier.align(Alignment.BottomCenter))
     }
@@ -146,7 +163,8 @@ private fun ContenidoExportar(
     estado: EstadoExportar,
     alElegirTipo: (TipoReporte) -> Unit,
     alElegirAlcance: (AlcanceReporte) -> Unit,
-    alExportar: () -> Unit
+    alExportar: () -> Unit,
+    alCompartir: () -> Unit
 ) {
     if (estado.cargando) {
         IndicadorCarga()
@@ -184,6 +202,22 @@ private fun ContenidoExportar(
                     null -> null
                 }
             )
+        }
+        // Aparece tras el primer guardado y se queda: permite compartir sin exportar de nuevo.
+        AnimatedVisibility(visible = estado.ultimoDestino != null) {
+            OutlinedButton(
+                onClick = alCompartir,
+                enabled = !estado.exportando,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                    .heightIn(min = 56.dp)
+            ) {
+                Text(
+                    stringResource(R.string.exportar_compartir_ultimo),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
         Button(
             onClick = alExportar,
@@ -321,7 +355,8 @@ private fun ContenidoExportarPreview() {
             ),
             alElegirTipo = {},
             alElegirAlcance = {},
-            alExportar = {}
+            alExportar = {},
+            alCompartir = {}
         )
     }
 }

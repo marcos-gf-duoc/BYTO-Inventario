@@ -11,16 +11,18 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 
 /**
- * Recibe cada imagen de la cámara (CameraX) y busca en ella un código EAN-13 (ML Kit).
+ * Recibe cada imagen de la cámara (CameraX) y busca en ella códigos de barras o QR (ML Kit).
  *
  * CameraX llama a [analyze] en un hilo aparte con cada cuadro. ML Kit procesa la imagen y
- * entrega el resultado en el hilo principal, donde se llama a [alDetectar].
+ * entrega el resultado en el hilo principal, donde se llama a [alDetectar] con el texto de
+ * todos los códigos vistos en ese cuadro.
  *
- * Solo se busca EAN-13 (el formato del catálogo): el lector trabaja más rápido y no
- * confunde otros códigos que aparezcan en la imagen.
+ * Se leen todos los formatos a propósito: el catálogo solo usa EAN-13, pero así un QR u
+ * otro código ajeno se detecta y el ViewModel puede avisar que no sirve, en vez de que la
+ * pantalla se quede sin responder. Decidir cuál código es válido no es tarea de esta clase.
  */
 class AnalizadorCodigos(
-    private val alDetectar: (String) -> Unit
+    private val alDetectar: (List<String>) -> Unit
 ) : ImageAnalysis.Analyzer {
 
     private val lector: BarcodeScanner = crearLector()
@@ -37,7 +39,8 @@ class AnalizadorCodigos(
         val entrada = InputImage.fromMediaImage(imagen, imageProxy.imageInfo.rotationDegrees)
         lector.process(entrada)
             .addOnSuccessListener { codigos ->
-                codigos.firstNotNullOfOrNull { it.rawValue }?.let(alDetectar)
+                val valores = codigos.mapNotNull { it.rawValue }
+                if (valores.isNotEmpty()) alDetectar(valores)
             }
             // Cerrar siempre la imagen: mientras no se cierre, CameraX no entrega la siguiente.
             .addOnCompleteListener { imageProxy.close() }
@@ -49,7 +52,10 @@ class AnalizadorCodigos(
     }
 
     companion object {
-        /** Lector de ML Kit configurado para leer todos los formatos (EAN, QR, Code 128, UPC, etc.). */
+        /**
+         * Lector de ML Kit que detecta todos los formatos (EAN, QR, Code 128, UPC, etc.).
+         * Detectar no es aceptar: solo un EAN-13 válido pasa el filtro del ViewModel.
+         */
         fun crearLector(): BarcodeScanner = BarcodeScanning.getClient(
             BarcodeScannerOptions.Builder()
                 .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)

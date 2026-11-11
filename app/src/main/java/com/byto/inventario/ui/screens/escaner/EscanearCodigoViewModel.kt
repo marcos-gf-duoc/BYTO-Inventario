@@ -46,15 +46,21 @@ class EscanearCodigoViewModel(
     /**
      * La cámara entrega muchos cuadros por segundo, así que el mismo código puede llegar
      * varias veces: solo se usa el primero válido.
+     *
+     * [valores] son todos los códigos vistos en un cuadro. Se elige el primero que sea un
+     * EAN-13 válido (el formato del catálogo); así un QR que aparezca junto al código del
+     * producto no estorba. Si ninguno lo es (QR, Code 128, EAN mal leído…), se avisa en
+     * pantalla y se sigue escaneando. Que el producto exista en la ubicación lo revisa P08.
      */
-    fun alDetectarCodigo(valor: String) {
+    fun alDetectarCodigos(valores: List<String>) {
         if (_estado.value.codigoLeido != null) return
-        if (ValidadorEan.validar(valor) != null) {
+        val valido = valores.firstOrNull { ValidadorEan.validar(it) == null }
+        if (valido == null) {
             _estado.update { it.copy(codigoInvalido = true) }
             return
         }
         vibrador.vibrarLectura()
-        _estado.update { it.copy(codigoLeido = valor, codigoInvalido = false) }
+        _estado.update { it.copy(codigoLeido = valido, codigoInvalido = false) }
     }
 
     fun alFallarCamara() {

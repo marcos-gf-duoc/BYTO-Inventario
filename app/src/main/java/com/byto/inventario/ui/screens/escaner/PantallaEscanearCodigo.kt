@@ -81,7 +81,7 @@ import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 
 /**
- * P17 Escanear código. [alLeerCodigo] recibe el EAN-13 leído (P08 lo busca);
+ * P17 Escanear código. [alLeerCodigo] recibe el EAN-13 válido leído (P08 lo busca);
  * [alEscribirCodigo] vuelve a P08 para escribirlo a mano.
  */
 @Composable
@@ -119,7 +119,7 @@ fun PantallaEscanearCodigo(
             codigoInvalido = estado.codigoInvalido,
             camaraNoDisponible = estado.camaraNoDisponible,
             linternaEncendida = estado.linternaEncendida,
-            alDetectar = viewModel::alDetectarCodigo,
+            alDetectar = viewModel::alDetectarCodigos,
             alFallarCamara = viewModel::alFallarCamara,
             alAlternarLinterna = viewModel::alternarLinterna,
             alEscribirCodigo = alEscribirCodigo
@@ -147,7 +147,7 @@ private fun ContenidoCamara(
     codigoInvalido: Boolean,
     camaraNoDisponible: Boolean,
     linternaEncendida: Boolean,
-    alDetectar: (String) -> Unit,
+    alDetectar: (List<String>) -> Unit,
     alFallarCamara: () -> Unit,
     alAlternarLinterna: () -> Unit,
     alEscribirCodigo: () -> Unit
@@ -196,7 +196,10 @@ private fun ContenidoCamara(
         ) {
             Icon(
                 painterResource(R.drawable.ic_flash),
-                contentDescription = "Linterna",
+                // Describe la acción del botón, que cambia según el estado.
+                contentDescription = stringResource(
+                    if (linternaEncendida) R.string.escanear_linterna_apagar else R.string.escanear_linterna_encender
+                ),
                 tint = if (linternaEncendida) Color.Yellow else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -234,7 +237,7 @@ private fun ContenidoCamara(
 
 @Composable
 private fun VistaCamara(
-    alDetectar: (String) -> Unit,
+    alDetectar: (List<String>) -> Unit,
     alFallar: () -> Unit,
     linternaEncendida: Boolean,
     modifier: Modifier = Modifier
@@ -247,15 +250,20 @@ private fun VistaCamara(
     val fallar by rememberUpdatedState(alFallar)
     var cameraInstance by remember { mutableStateOf<androidx.camera.core.Camera?>(null) }
 
-    LaunchedEffect(linternaEncendida) {
-        try {
-            cameraInstance?.cameraControl?.enableTorch(linternaEncendida)
-        } catch (e: Exception) {}
+    // Se ejecuta cuando cambia el interruptor y también cuando la cámara queda lista
+    // (cameraInstance pasa de null a la cámara), así la linterna siempre refleja el estado.
+    // hasFlashUnit(): en un teléfono sin flash no se pide nada. enableTorch no lanza
+    // excepciones (informa su resultado aparte), por eso no hace falta try/catch.
+    LaunchedEffect(linternaEncendida, cameraInstance) {
+        val camara = cameraInstance ?: return@LaunchedEffect
+        if (camara.cameraInfo.hasFlashUnit()) {
+            camara.cameraControl.enableTorch(linternaEncendida)
+        }
     }
 
     DisposableEffect(cicloDeVida) {
         val hiloAnalisis = Executors.newSingleThreadExecutor()
-        val analizador = AnalizadorCodigos { codigo -> detectar(codigo) }
+        val analizador = AnalizadorCodigos { codigos -> detectar(codigos) }
         val futuroProveedor = ProcessCameraProvider.getInstance(contexto)
         var proveedor: ProcessCameraProvider? = null
 
@@ -277,18 +285,15 @@ private fun VistaCamara(
                 }
                 camaras.unbindAll()
                 cameraInstance = camaras.bindToLifecycle(cicloDeVida, selector, vista, analisis)
-                try {
-                    cameraInstance?.cameraControl?.enableTorch(linternaEncendida)
-                } catch (e: Exception) {}
             } catch (e: Exception) {
+                // Cualquier fallo al abrir la cámara (sin cámara, ocupada por otra app…) se
+                // informa al ViewModel, que muestra el aviso y ofrece escribir el código.
                 fallar()
             }
         }, ContextCompat.getMainExecutor(contexto))
 
         onDispose {
-            try {
-                cameraInstance?.cameraControl?.enableTorch(false)
-            } catch (e: Exception) {}
+            // Soltar la cámara también apaga la linterna.
             proveedor?.unbindAll()
             analizador.cerrar()
             hiloAnalisis.shutdown()
