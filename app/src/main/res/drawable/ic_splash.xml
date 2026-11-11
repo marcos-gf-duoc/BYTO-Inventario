@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Ícono del splash del sistema. Android recorta el ícono del splash en un círculo que ocupa
+    2/3 del espacio; el ícono de BYTO es un cuadrado redondeado y sus esquinas quedaban cortadas.
+    "inset" lo achica dejando un margen parejo, para que entre completo en ese círculo.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@mipmap/ic_launcher_foreground"
+    android:inset="12%" />

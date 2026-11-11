@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
+    // Splash del sistema (SplashScreen API), igual desde Android 8: ver MainActivity y themes.xml.
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
@@ -58,7 +59,8 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
-    // ML Kit con el modelo incluido en la app: reconoce el EAN-13 sin conexión ni Google Play.
+    // ML Kit con el modelo incluido en la app: lee los códigos sin conexión ni Google Play.
+    // (El lector detecta todos los formatos; la app solo acepta EAN-13.)
     implementation(libs.mlkit.barcode.scanning)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

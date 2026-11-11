@@ -2,10 +2,12 @@
 <resources>
     <!-- Tema oficial para el Splash Screen (Android 12+ y retrocompatible) -->
     <style name="Theme.BYTO.Splash" parent="Theme.SplashScreen">
-        <!-- Color de fondo del splash (Morado de BYTO) -->
-        <item name="windowSplashScreenBackground">#5B3E9E</item>
-        <!-- Icono centrado en el splash -->
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <!-- Fondo blanco: el dibujo del ícono trae fondo blanco opaco, y sobre otro color se vería un recuadro -->
+        <item name="windowSplashScreenBackground">#FFFFFF</item>
+        <!-- Íconos oscuros en la barra de estado (hora, batería), para que se vean sobre el blanco -->
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- Ícono centrado en el splash (versión con margen, ver drawable/ic_splash.xml) -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
         <!-- Tema que se aplica al finalizar el splash (la app normal) -->
         <item name="postSplashScreenTheme">@style/Theme.BYTO</item>
     </style>

@@ -6,9 +6,9 @@ import com.byto.inventario.data.model.EstadoStock
 import com.byto.inventario.data.model.Perfil
 
 /**
- * Las 17 pantallas de la app. Cada una tiene:
+ * Las 18 pantallas de la app (P00 a P17). Cada una tiene:
  * - [ruta]: el texto que usa Navigation Compose para identificarla (como una URL interna).
- * - [codigo]: el código del diseño (P01…P17), útil para conversar sobre ella.
+ * - [codigo]: el código del diseño (P00…P17), útil para conversar sobre ella.
  * - [titulo]: el título visible, desde strings.xml.
  * - [patron]: la ruta con sus argumentos, tal como se registra en el NavHost.
  *   Por ejemplo "detalle_producto/{codigoInterno}": al navegar, {codigoInterno}
@@ -21,7 +21,7 @@ enum class Pantalla(
     @param:StringRes val titulo: Int,
     val patron: String = ruta
 ) {
-    SPLASH("splash", "P00", R.string.titulo_p01),
+    SPLASH("splash", "P00", R.string.titulo_p00),
     LOGIN("login", "P01", R.string.titulo_p01),
     SELECCION_UBICACION("seleccion_ubicacion", "P02", R.string.titulo_p02),
     INICIO_OPERADOR("inicio_operador", "P03", R.string.titulo_p03),
