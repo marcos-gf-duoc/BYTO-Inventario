@@ -7,7 +7,8 @@
     <string name="estado_critico">Crítico</string>
     <string name="estado_sin_stock">Sin stock</string>
 
-    <!-- Títulos de las 16 pantallas (los de P03 a P05 siguen los mockups) -->
+    <!-- Títulos de las pantallas P00 a P17 (los de P03 a P05 siguen los mockups) -->
+    <string name="titulo_p00">Cargando</string>
     <string name="titulo_p01">Login</string>
     <string name="titulo_p02">Selección de ubicación</string>
     <string name="titulo_p03">Inicio</string>
@@ -52,10 +53,20 @@
 
     <!-- P01 Login -->
     <string name="login_subtitulo">Inventario multitienda</string>
-    <string name="login_titulo">Elige tu usuario</string>
-    <string name="login_ayuda">Usuarios de demostración, datos ficticios</string>
-    <string name="login_id_perfil">%1$s · %2$s</string>
+    <string name="login_titulo">Iniciar sesión</string>
+    <string name="login_instruccion">Ingresa tu ID de usuario y tu PIN de 6 dígitos.</string>
+    <string name="login_campo_usuario">ID de usuario</string>
+    <string name="login_ejemplo_usuario">Por ejemplo, OP-001</string>
+    <string name="login_campo_pin">PIN (6 dígitos)</string>
+    <string name="login_ayuda">Usuarios de demostración con datos ficticios.</string>
     <string name="login_ingresar">Ingresar</string>
+    <string name="login_ingresando">Ingresando…</string>
+    <string name="login_error_usuario_obligatorio">Escribe tu ID de usuario.</string>
+    <string name="login_error_usuario_no_encontrado">No existe un usuario con ese ID.</string>
+    <string name="login_error_pin_obligatorio">Escribe tu PIN.</string>
+    <string name="login_error_pin_incompleto">El PIN debe tener 6 dígitos (tiene %1$d).</string>
+    <string name="login_error_pin_incorrecto">PIN incorrecto. Revísalo e inténtalo de nuevo.</string>
+    <string name="login_error_general">No se pudo iniciar sesión. Intenta de nuevo.</string>
     <string name="demo_sin_conexion_activa">Modo demo: conexión simulada cortada. Mantén presionado el título para restablecerla.</string>
 
     <!-- P02 Selección de ubicación -->
@@ -158,13 +169,15 @@
     <!-- P17 Escanear código -->
     <string name="escanear_instruccion">Apunta al código de barras</string>
     <string name="escanear_cd_camara">Vista de la cámara para leer el código de barras</string>
-    <string name="escanear_codigo_invalido">El código leído no es un EAN-13 válido. Intenta de nuevo.</string>
+    <string name="escanear_codigo_invalido">Ese código no es de un producto BYTO (se espera un EAN-13 de 13 dígitos). Apunta al código de barras del producto.</string>
     <string name="escanear_sin_camara">No se pudo abrir la cámara de este teléfono. Puedes escribir el código a mano.</string>
     <string name="escanear_permiso_titulo">Se necesita la cámara</string>
     <string name="escanear_permiso_texto">BYTO usa la cámara solo para leer códigos de barras. Las imágenes no se guardan ni se envían.</string>
     <string name="escanear_permiso_permitir">Permitir cámara</string>
     <string name="escanear_permiso_ajustes">Abrir ajustes</string>
     <string name="escanear_escribir">Escribir el código a mano</string>
+    <string name="escanear_linterna_encender">Encender linterna</string>
+    <string name="escanear_linterna_apagar">Apagar linterna</string>
 
     <!-- P11 Alertas -->
     <plurals name="alertas_subtitulo">
@@ -266,6 +279,10 @@
     <string name="exportar_error_ubicacion">Elige la ubicación del reporte.</string>
     <string name="exportar_error_sin_destino">No se eligió dónde guardar el archivo. Toca Exportar para intentarlo de nuevo.</string>
     <string name="exportar_error_escritura">No se pudo guardar el archivo. Prueba con otra carpeta.</string>
+    <string name="exportar_compartir">Compartir</string>
+    <string name="exportar_compartir_ultimo">Compartir el último reporte</string>
+    <string name="exportar_compartir_titulo">Compartir reporte CSV</string>
+    <string name="exportar_error_compartir">No hay una app disponible para compartir el archivo.</string>
 
     <!-- P09 Registrar movimiento -->
     <string name="registrar_codigos">%1$s · EAN %2$s</string>

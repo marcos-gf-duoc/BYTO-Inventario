@@ -27,8 +27,16 @@ import com.byto.inventario.data.model.Usuario
  */
 interface InventarioRepository {
 
-    /** 1. GET /usuarios/demo — usuarios ficticios para el login simulado. */
+    /** 1. GET /usuarios/demo — usuarios ficticios, sin PIN (filtro de operador del historial). */
     suspend fun obtenerUsuariosDemo(): List<Usuario>
+
+    /**
+     * 13. POST /sesion — inicia sesión con el ID de usuario y su PIN de 6 dígitos.
+     * La verificación ocurre aquí (en el futuro, en el servidor): quien llama nunca ve los PIN.
+     * @throws ReglaNegocioException con código NO_ENCONTRADO (no existe el usuario) o
+     * PIN_INCORRECTO.
+     */
+    suspend fun autenticar(usuarioId: String, pin: String): Usuario
 
     /** 2. GET /ubicaciones?usuarioId= — ubicaciones del usuario (todas si es Gerente). */
     suspend fun obtenerUbicaciones(usuarioId: String): List<Ubicacion>

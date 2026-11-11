@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Quién está usando la app y en qué ubicación trabaja. Vive en memoria:
- * al cerrar la app se pierde y se vuelve a elegir usuario (login simulado). El inventario,
+ * al cerrar la app se pierde y hay que iniciar sesión de nuevo. El inventario,
  * en cambio, sí queda guardado en Room.
  *
  * Patrón habitual: el MutableStateFlow privado solo se cambia desde aquí, y hacia

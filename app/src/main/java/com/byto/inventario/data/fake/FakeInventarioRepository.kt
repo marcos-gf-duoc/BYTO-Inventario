@@ -75,6 +75,19 @@ class FakeInventarioRepository(
 
     override suspend fun obtenerUsuariosDemo(): List<Usuario> = llamada { usuarios.toList() }
 
+    // ---------- 13. Inicio de sesión ----------
+
+    override suspend fun autenticar(usuarioId: String, pin: String): Usuario = llamada {
+        // Sin distinguir mayúsculas: "op-001" y "OP-001" son el mismo usuario.
+        val usuario = usuarios.find { it.id.equals(usuarioId.trim(), ignoreCase = true) }
+            ?: throw noEncontrado("No existe el usuario $usuarioId.")
+        if (DatosSinteticos.pinesDemo[usuario.id] != pin) {
+            // El mensaje no incluye el PIN: no debe quedar en registros ni en pantalla.
+            throw ReglaNegocioException("PIN_INCORRECTO", "PIN incorrecto para ${usuario.id}.")
+        }
+        usuario
+    }
+
     // ---------- 2 y 3. Ubicaciones ----------
 
     override suspend fun obtenerUbicaciones(usuarioId: String): List<Ubicacion> = llamada {

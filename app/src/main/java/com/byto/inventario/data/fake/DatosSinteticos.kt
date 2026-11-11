@@ -50,15 +50,13 @@ object DatosSinteticos {
             id = "OP-001",
             etiqueta = "Operario Santiago",
             perfil = Perfil.OPERADOR,
-            ubicacionesIds = listOf("T-ST-1", "T-ST-2", "T-ST-3"),
-            password = "123456"
+            ubicacionesIds = listOf("T-ST-1", "T-ST-2", "T-ST-3")
         ),
         Usuario(
             id = "OP-002",
             etiqueta = "Operario La Serena",
             perfil = Perfil.OPERADOR,
-            ubicacionesIds = listOf("T-LS-1", "T-LS-2", "T-LS-3"),
-            password = "123457"
+            ubicacionesIds = listOf("T-LS-1", "T-LS-2", "T-LS-3")
         ),
         Usuario(
             id = "EB-001",
@@ -66,16 +64,28 @@ object DatosSinteticos {
             perfil = Perfil.ENCARGADO_BODEGA,
             ubicacionesIds = listOf("B-ST-1"),
             // Las tiendas que abastece su bodega: solo consulta.
-            ubicacionesConsultaIds = listOf("T-ST-1", "T-ST-2", "T-ST-3"),
-            password = "123458"
+            ubicacionesConsultaIds = listOf("T-ST-1", "T-ST-2", "T-ST-3")
         ),
         Usuario(
             id = "GE-001",
             etiqueta = "Gerente BYTO",
             perfil = Perfil.GERENTE,
-            ubicacionesIds = ubicaciones.map { it.id }, // Todas
-            password = "123459"
+            ubicacionesIds = ubicaciones.map { it.id } // Todas
         )
+    )
+
+    /**
+     * PIN de 6 dígitos de cada usuario simulado. Son datos ficticios de demostración,
+     * igual que el resto de este archivo, y este es el único lugar donde se escriben
+     * (excepción documentada en CLAUDE.md). Solo los leen los repositorios, en
+     * `autenticar`: ni los ViewModels ni las pantallas los conocen. Con el backend
+     * real, la verificación pasará al servidor y este mapa desaparecerá.
+     */
+    val pinesDemo: Map<String, String> = mapOf(
+        "OP-001" to "123456",
+        "OP-002" to "123457",
+        "EB-001" to "123458",
+        "GE-001" to "123459"
     )
 
     // ---------- Catálogo (25 productos: 5 categorías × 5) ----------
