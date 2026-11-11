@@ -9,7 +9,8 @@ Instrucciones para Claude Code en este repositorio. Léelas completas antes de c
 - Las decisiones de negocio están en `docs/decisiones_E1.md` (el nombre del archivo se conserva, pero su contenido es de la E2) y la arquitectura y el contrato de la API en `docs/arquitectura_API.md`. **Esos documentos mandan**: no inventes requisitos, ubicaciones, usuarios, productos ni reglas que no estén ahí. Si algo falta o es ambiguo, pregunta antes de decidir.
 - Material de referencia **solo local** (excluido en `.gitignore`, puede no existir en otro clon):
   - `docs/002_Formato_Caso_MultiTienda.pdf`: el Caso.
-  - `docs/Ev. Parcial 2_Estudiante_Encargo_DSY1105.pdf`: la pauta.
+  - `docs/Ev. Parcial 2_Estudiante_Encargo_DSY1105.pdf`: la pauta del encargo.
+  - `docs/Evaluación Parcial 3_Estudiante_Presentación_DSY1105.pdf`: la rúbrica de la presentación.
   - `docs/BYTO_mockups_1080x2400/`: los mockups P01 a P16.
 
 ## Stack
@@ -19,21 +20,22 @@ Instrucciones para Claude Code en este repositorio. Léelas completas antes de c
   - `LocalInventarioRepository` guarda los datos en el teléfono, carga `DatosSinteticos` en el primer arranque y conserva el retardo simulado (~300 ms) y el interruptor de "sin conexión".
   - `FakeInventarioRepository` (en memoria) queda para las pruebas.
   - En el futuro se agregará `RemoteInventarioRepository` (Retrofit hacia Spring Boot), que cumplirá la misma interfaz `InventarioRepository`.
-- Recursos nativos de la E2: **cámara** (escáner EAN-13), **guardado de archivos** (reporte CSV) y **vibración**.
+- Recursos nativos: **cámara** (escáner EAN-13, con linterna), **guardado de archivos** (reporte CSV), **compartir** el CSV con otras apps y **vibración**.
 - Dependencias creadas a mano en `di/AppContainer.kt` (sin Hilt ni Koin).
 - **No agregues librerías nuevas** sin preguntar primero y explicar para qué sirven. Aprobadas por ahora:
   - las de la plantilla de Android Studio;
   - Navigation Compose;
   - Room, con el plugin KSP;
   - CameraX;
-  - ML Kit Barcode Scanning, en su versión con el modelo incluido.
+  - ML Kit Barcode Scanning, en su versión con el modelo incluido;
+  - Core SplashScreen (`androidx.core:core-splashscreen`), para el splash del sistema.
 
 ## Estructura de paquetes
 ```
 com.byto.inventario
 ├── BytoApp.kt, MainActivity.kt
 ├── di/AppContainer.kt
-├── domain/                           (lógica pura: ReglasInventario, ValidadorEan, Permisos, Fechas, ReporteCsv)
+├── domain/                           (lógica pura: ReglasInventario, ValidadorEan, ValidacionLogin, ValidacionReposicion, Permisos, Fechas, Regiones, ReporteCsv)
 ├── data/model/                       (Ubicacion, Producto, Existencia, Movimiento, Alerta, Usuario, enums)
 ├── data/repository/                  (InventarioRepository, SesionRepository)
 ├── data/local/                       (Room: BytoDatabase, entidades, DAOs, LocalInventarioRepository)
@@ -82,6 +84,8 @@ com.byto.inventario
 
 ## Seguridad y privacidad (Leyes 19.628 y 21.719, Caso §5.1)
 - Nunca incluyas claves, tokens, contraseñas ni credenciales en el código o en el repositorio.
+  - Única excepción: los PIN **ficticios** de los 4 usuarios de demostración, escritos solo en `DatosSinteticos.pinesDemo`. No se repiten en pantallas, `strings.xml`, README ni pruebas de interfaz; para la presentación se listan en la guía de demostración.
+  - Los PIN solo los lee el repositorio en `autenticar`. `Usuario`, los ViewModels y las pantallas no los contienen ni los reciben.
 - Nada de datos personales reales: ni nombres, ni RUT, ni correos, ni direcciones, ni marcas comerciales reales.
 - Permisos permitidos: solo `CAMERA` (pedido al usarlo, con manejo del rechazo) y `VIBRATE`. No pidas otros (ni ubicación ni almacenamiento: el CSV se guarda con el selector del sistema).
 - No subas al repositorio el material de referencia de `docs/` que está en `.gitignore`.

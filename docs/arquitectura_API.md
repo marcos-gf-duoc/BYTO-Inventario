@@ -3,6 +3,7 @@
 Confirmado por el estudiante:
 - **Etapa (c)**: Navigation Compose, retardo simulado (~300 ms) e interruptor de "sin conexión".
 - **Entrega 2**: Room para la persistencia local, cámara con CameraX y ML Kit, exportación CSV y vibración.
+- **Mejoras posteriores**: splash (SplashScreen API + P00), login con ID y PIN verificado por el repositorio, linterna en el escáner y compartir el CSV.
 
 ## Arquitectura
 - App Android: Kotlin + Jetpack Compose + MVVM, un solo módulo.
@@ -14,7 +15,7 @@ Confirmado por el estudiante:
 - Reglas de negocio puras en `domain/ReglasInventario` (cálculo de stock resultante, estado del stock y validaciones). En E2 las usan el repositorio local y la vista previa de "stock resultante". Cuando exista el backend, él será la autoridad y la app las usará solo para la vista previa.
 - Sesión (usuario y ubicación activa) en memoria, en `SesionRepository`.
 - Dependencias creadas a mano en `AppContainer` (sin Hilt ni Koin). `AppContainer` crea la base de datos de Room una sola vez para toda la app.
-- **Recursos nativos** (cámara, archivos y vibración):
+- **Recursos nativos** (cámara con linterna, archivos, compartir y vibración):
   - Viven fuera de los repositorios de inventario, en `dispositivo/`, para que la lógica no dependa de Android y siga siendo fácil de probar.
   - La pantalla pide los permisos y abre los selectores del sistema, porque estas APIs necesitan una Activity.
   - El ViewModel decide qué hacer con el resultado.
@@ -26,7 +27,7 @@ com.byto.inventario
 ├── BytoApp.kt                 (Application: crea el AppContainer)
 ├── MainActivity.kt
 ├── di/AppContainer.kt
-├── domain/                    (ReglasInventario, ValidadorEan, Permisos, Fechas, ReporteCsv: lógica pura)
+├── domain/                    (ReglasInventario, ValidadorEan, ValidacionLogin, ValidacionReposicion, Permisos, Fechas, Regiones, ReporteCsv: lógica pura)
 ├── data/
 │   ├── model/                 (Ubicacion, Producto, Existencia, Movimiento, Alerta, Usuario, enums)
 │   ├── repository/            (InventarioRepository, SesionRepository)
@@ -37,7 +38,7 @@ com.byto.inventario
     ├── theme/                 (colores y tipografía accesibles)
     ├── navigation/            (rutas y NavHost)
     ├── components/            (botones, tarjetas, chips de estado reutilizables)
-    └── screens/               (login, seleccion, inicio, inventario, detalle, buscar, escaner, movimiento,
+    └── screens/               (splash, login, seleccion, inicio, inventario, detalle, buscar, escaner, movimiento,
                                 alertas, reposicion, historial, ubicaciones, exportar, sinconexion)
 ```
 
@@ -49,7 +50,8 @@ com.byto.inventario
 | Room (runtime + ktx + compiler) | Persistencia local en SQLite | E2 | Aprobada |
 | KSP (plugin de Gradle) | Genera el código de Room a partir de las anotaciones | E2 | Aprobada |
 | CameraX (core, camera2, lifecycle, view) | Mostrar la cámara y entregar imágenes al lector | E2 | Aprobada |
-| ML Kit Barcode Scanning (modelo incluido) | Reconocer el EAN-13 en las imágenes, sin conexión | E2 | Aprobada |
+| ML Kit Barcode Scanning (modelo incluido) | Detectar códigos en las imágenes, sin conexión (la app solo acepta EAN-13) | E2 | Aprobada |
+| Core SplashScreen (`androidx.core:core-splashscreen`) | Splash del sistema al abrir la app, igual en todas las versiones de Android | E2 | Aprobada |
 | Retrofit + convertidor JSON | Llamar a la API REST | Futuro | A decidir |
 
 La vibración y el guardado de archivos usan APIs propias de Android (`Vibrator` y "Guardar como" del sistema) y no requieren librerías.
@@ -67,14 +69,14 @@ No se piden otros permisos. El CSV se guarda con el selector del sistema, que no
 - Fechas: ISO-8601 en UTC, por ejemplo `2026-10-16T13:10:00Z`. La hora del movimiento la asigna el servidor, no el teléfono.
 - Errores: `{ "codigo": "STOCK_INSUFICIENTE", "mensaje": "La salida (5) supera el stock actual (3)." }`
 - Códigos HTTP: 200 OK, 201 creado, 400 datos inválidos, 404 no existe, 409 conflicto de regla (por ejemplo, ubicación inactiva).
-- Autenticación: no definida aún. En E2 el login elige un usuario de una lista. Cuando exista el backend, el servidor debe obtener el operador desde la sesión o el token, no desde el cuerpo de la petición.
+- Autenticación: en E2 el login pide ID de usuario y PIN de 6 dígitos, y el repositorio local los verifica (endpoint 13). Cuando exista el backend, el servidor verificará las credenciales, devolverá un token y obtendrá el operador desde la sesión o el token, no desde el cuerpo de la petición.
 
 ## Endpoints
 En E2 no hay servidor: cada endpoint corresponde a una función de `InventarioRepository`, que implementa el repositorio local. La columna "E2" indica si la app ya lo usa.
 
 | # | Método y ruta | Para qué | Perfil | E2 |
 |---|---|---|---|---|
-| 1 | `GET /usuarios/demo` | Lista de usuarios ficticios para el login simulado | Todos | Sí |
+| 1 | `GET /usuarios/demo` | Lista de usuarios ficticios, sin PIN (filtro de operador del historial) | Encargado, Gerente | Sí |
 | 2 | `GET /ubicaciones?usuarioId=` | Ubicaciones asignadas al usuario (todas si es Gerente) | Todos | Sí |
 | 3 | `PATCH /ubicaciones/{id}` | Habilitar o deshabilitar una ubicación `{ "estado": "ACTIVA" }` | Gerente | Sí |
 | 4 | `GET /ubicaciones/{id}/existencias?q=&estado=` | Inventario de una ubicación con búsqueda y filtro (NORMAL, BAJO, CRITICO, SIN_STOCK) | Operador, Encargado, Gerente | Sí |
@@ -86,6 +88,7 @@ En E2 no hay servidor: cada endpoint corresponde a una función de `InventarioRe
 | 10 | `POST /alertas/reposicion` | Declarar reposición `{ "ubicacionId", "codigoInterno", "observacion" }` (observación opcional) | Encargado | Sí |
 | 11 | `PATCH /alertas/{id}` | Marcar descalce como revisado `{ "estado": "REVISADA" }` | Encargado, Gerente | Sí |
 | 12 | `GET /tablero` | Resumen: totales por ubicación y alertas abiertas | Gerente | Sí |
+| 13 | `POST /sesion` | Iniciar sesión `{ "usuarioId", "pin" }`; devuelve el usuario | Todos | Sí (login P01) |
 
 La exportación CSV (P15) no es un endpoint: la app arma el archivo con los datos que ya obtiene de los endpoints 4, 8 y 9 (Caso §3.4: "se simulará localmente").
 
@@ -124,7 +127,7 @@ Respuesta `201 Created`
 ```
 
 ## Interfaz `InventarioRepository` (Kotlin)
-Una función `suspend` por endpoint; el número es el del endpoint. La implementan `LocalInventarioRepository` (E2, Room) y `FakeInventarioRepository` (pruebas). En el futuro la implementará también `RemoteInventarioRepository`. Código en `data/repository/InventarioRepository.kt`.
+Una función `suspend` por endpoint; el número es el del endpoint. `Usuario` no incluye el PIN: solo `autenticar` lo recibe. La implementan `LocalInventarioRepository` (E2, Room) y `FakeInventarioRepository` (pruebas). En el futuro la implementará también `RemoteInventarioRepository`. Código en `data/repository/InventarioRepository.kt`.
 
 ```kotlin
 interface InventarioRepository {
@@ -147,6 +150,7 @@ interface InventarioRepository {
     ): Alerta
     suspend fun marcarDescalceRevisado(alertaId: String): Alerta                         // 11
     suspend fun obtenerTablero(): Tablero                                                // 12
+    suspend fun autenticar(usuarioId: String, pin: String): Usuario                      // 13
 }
 ```
 
@@ -165,6 +169,7 @@ Tipos de apoyo (en `data/model/`):
 | Código | HTTP | Cuándo |
 |---|---|---|
 | `NO_ENCONTRADO` | 404 | Usuario, ubicación, existencia o alerta inexistente |
+| `PIN_INCORRECTO` | 401 | El PIN no corresponde al usuario (login) |
 | `CANTIDAD_INVALIDA` | 400 | Cantidad fuera de lo permitido para el tipo de movimiento |
 | `STOCK_INSUFICIENTE` | 400 | Salida mayor que el stock actual |
 | `MOTIVO_OBLIGATORIO` | 400 | Ajuste sin motivo |

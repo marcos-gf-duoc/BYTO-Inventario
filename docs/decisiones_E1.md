@@ -14,18 +14,18 @@ Documento vivo con las decisiones confirmadas por el estudiante. Fuente para las
 - Sin backend: lo construirá el estudiante en una entrega posterior, con un supervisor.
 - **Persistencia local con Room**: los datos sobreviven al cierre de la app (reemplaza la decisión anterior de "datos solo en memoria").
 - **Escáner con cámara: obligatorio en E2** (Caso §3.3 y §4.1, confirmado por el estudiante).
-- QR: fuera del alcance (solo EAN-13).
+- QR y otros formatos: el escáner los detecta, pero solo acepta EAN-13 (el formato del catálogo); ante cualquier otro código muestra un aviso de error y sigue escaneando.
 
 ## Requisitos de la rúbrica (Evaluación Parcial 2) y cómo se cumplen
 | Indicador | Peso | Cómo lo cumple BYTO |
 |---|---|---|
-| IE 2.1.1 Interfaz y navegación | 15 % | Pantallas P01–P17 según los mockups, barra inferior y navegación por perfil |
+| IE 2.1.1 Interfaz y navegación | 15 % | Pantallas P00–P17 (P01–P16 según los mockups), barra inferior y navegación por perfil |
 | IE 2.1.2 Formularios validados | 15 % | Validación por campo con mensaje e ícono (ver "Formularios y validaciones") |
 | IE 2.2.1 Validación desacoplada | 10 % | Reglas en `domain/`; el ViewModel valida y la pantalla solo muestra el estado |
 | IE 2.2.2 Animaciones | 10 % | Ver "Animaciones" |
 | IE 2.3.1 Modularidad y persistencia local | 15 % | MVVM por capas + Room detrás de `InventarioRepository` |
 | IE 2.3.2 GitHub + Trello | 20 % | Commits técnicos de ambos integrantes y tablero Trello con tareas repartidas (fuera del código) |
-| IE 2.4.1 Dos o más recursos nativos | 15 % | Cámara (escáner), almacenamiento de archivos (CSV) y vibración |
+| IE 2.4.1 Dos o más recursos nativos | 15 % | Cámara con linterna (escáner), almacenamiento de archivos (CSV), compartir el CSV con otras apps y vibración |
 
 - Entrega: repositorio **público** en GitHub, README con nombres e instrucciones, y el mismo código subido a AVA.
 - **Ningún cambio al repositorio después de la fecha de entrega** (la pauta lo sanciona con nota 1.0).
@@ -51,13 +51,17 @@ Documento vivo con las decisiones confirmadas por el estudiante. Fuente para las
 | T-CC-2 | BYTO Concepción Norte | Tienda | B-CC-1 | Activa |
 | T-CC-3 | BYTO Concepción Sur | Tienda | B-CC-1 | **Inactiva** (para demostrar la administración de tiendas) |
 
-## Usuarios simulados (login sin contraseña, selección desde una lista)
+## Usuarios simulados (login con ID de usuario y PIN de 6 dígitos)
 | ID anonimizado | Etiqueta | Perfil | Ubicaciones |
 |---|---|---|---|
 | OP-001 | Operario Santiago | Operador | T-ST-1, T-ST-2, T-ST-3 |
 | OP-002 | Operario La Serena | Operador | T-LS-1, T-LS-2, T-LS-3 |
 | EB-001 | Encargado Bodega Santiago | Encargado de bodega | B-ST-1 + T-ST-1, T-ST-2, T-ST-3 (consulta) |
 | GE-001 | Gerente BYTO | Gerencial | Todas |
+
+- El login (P01) pide el ID anonimizado y un PIN de 6 dígitos. Los PIN son ficticios, de demostración, y están escritos en un solo lugar del código (`DatosSinteticos.pinesDemo`); para la presentación se listan en la guía de demostración.
+- La verificación la hace el repositorio (`autenticar`, endpoint 13): los ViewModels y las pantallas nunca reciben los PIN. Con el backend real, la hará el servidor.
+- El ID se acepta en mayúsculas o minúsculas ("op-001" = "OP-001").
 
 ## Umbrales de stock (globales, iguales para todos los productos y ubicaciones)
 | Estado | Condición | Uso en E2 |
@@ -177,19 +181,21 @@ Sin marcas. Ropa en talla única M (las tallas como variantes quedan fuera de E2
 ## Persistencia local (Room)
 - Room guarda ubicaciones (con su estado activa/inactiva), productos, existencias, movimientos y alertas.
 - **Primer arranque**: si la base está vacía, se carga con los datos de este documento (`DatosSinteticos`). Desde ahí, todo cambio queda guardado al cerrar la app.
-- Los usuarios simulados siguen definidos en el código (son fijos y no se editan).
-- La sesión (usuario y ubicación activa) sigue en memoria: al abrir la app se vuelve a elegir usuario.
+- Los usuarios simulados y sus PIN de demostración siguen definidos en el código (`DatosSinteticos`; son fijos y no se editan).
+- La sesión (usuario y ubicación activa) sigue en memoria: al abrir la app hay que iniciar sesión de nuevo.
 - Para volver a los datos iniciales en una demostración: borrar los datos de la app desde los ajustes de Android.
 - Sin respaldo automático (`allowBackup="false"` y reglas que excluyen todo): el inventario no se copia a la nube ni a otro teléfono (Caso §5.1), y al reinstalar la app vuelve a los datos iniciales.
 
 ## Recursos nativos del dispositivo
 | Recurso | Dónde se usa | Permiso | Comportamiento |
 |---|---|---|---|
-| **Cámara** (escáner EAN-13) | P17 Escanear código, desde P08 | `CAMERA`, pedido al usarlo | Lee el código y abre el producto encontrado. Si el permiso se niega, se explica por qué hace falta, se ofrece abrir los ajustes y la búsqueda manual de P08 sigue disponible. |
+| **Cámara** (escáner EAN-13, con linterna) | P17 Escanear código, desde P08 | `CAMERA`, pedido al usarlo | Lee el código y abre el producto encontrado. Un botón enciende la linterna (flash) para leer con poca luz. Si el permiso se niega, se explica por qué hace falta, se ofrece abrir los ajustes y la búsqueda manual de P08 sigue disponible. |
 | **Almacenamiento de archivos** (reporte CSV) | P15 Exportar reporte | Ninguno | El sistema abre "Guardar como" y el usuario elige la carpeta (por ejemplo, Descargas). Funciona igual desde Android 8. |
 | **Vibración** | P17 al leer un código | `VIBRATE` (se concede al instalar) | Vibración corta al leer un código. Siempre va acompañada de un aviso visual, nunca es la única señal. |
+| **Compartir archivos** | P15, después de guardar | Ninguno | Abre el selector de apps del sistema (`Intent.ACTION_SEND`) con el CSV recién guardado. El botón "Compartir el último reporte" queda disponible tras el primer guardado. |
 
-- Lectura solo de EAN-13 (formato del catálogo), con el modelo de ML Kit incluido en la app para que funcione sin conexión.
+- ML Kit (modelo incluido en la app, funciona sin conexión) detecta todos los formatos, pero solo se acepta un EAN-13 válido (formato del catálogo). Si en la imagen hay varios códigos, se usa el primero válido. Ante un QR u otro código se muestra "Ese código no es de un producto BYTO…" y se sigue escaneando.
+- Un EAN-13 válido que no corresponde a un producto de la ubicación vuelve a P08, que muestra "Producto no encontrado en esta ubicación".
 - El código leído pasa por la misma validación que la búsqueda manual (`ValidadorEan`).
 - Pantalla nueva **P17 Escanear código** (sin mockup): vista de la cámara a pantalla completa con un marco guía, botón Volver y el texto "Apunta al código de barras". Se abre con el botón "Escanear con cámara" de P08.
 - En el mockup P08, la ayuda "La lectura con cámara estará disponible en la entrega final" se reemplaza por "13 dígitos, o usa la cámara".
@@ -213,6 +219,8 @@ Cada campo muestra su error debajo, con ícono y texto. El color nunca es la ún
 
 | Pantalla | Campo | Validación |
 |---|---|---|
+| P01 Login | ID de usuario | Obligatorio; debe existir (lo verifica el repositorio) |
+| | PIN | Obligatorio; exactamente 6 dígitos; debe ser el del usuario (lo verifica el repositorio) |
 | P08 Buscar por código | EAN-13 | Obligatorio; solo dígitos; exactamente 13; dígito verificador correcto; producto existente |
 | P09 Registrar movimiento | Tipo | Obligatorio |
 | | Cantidad | Según el tipo (ver "Reglas de movimientos"); salida ≤ stock; ajuste no deja stock < 0 |
@@ -226,6 +234,7 @@ Cada campo muestra su error debajo, con ícono y texto. El color nunca es la ún
 
 ## Animaciones
 Las animaciones deben dar fluidez o retroalimentación, no decorar. Respetan la escala de animación del sistema, que Compose aplica automáticamente.
+- Splash al abrir la app: primero el del sistema (SplashScreen API) y luego la pantalla de carga P00 en Compose.
 - Transición entre pantallas (fundido y desplazamiento) en Navigation Compose.
 - Aparición y desaparición de los mensajes de error por campo y del resultado de P08.
 - Cambio animado del "stock resultante" en P09 y del color de los chips de estado.
